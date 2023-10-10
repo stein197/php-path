@@ -49,14 +49,14 @@ use const DIRECTORY_SEPARATOR;
  */
 class Path {
 
+	public const OPTKEY_SEPARATOR = 'separator';
+	public const OPTKEY_PRESERVE_SLASH = 'preserveSlash';
+	public const OPTKEY_TRAILING_SLASH = 'trailingSlash';
+	public const OPTKEY_BASE_RESOLVE = 'baseResolve';
 	private const MSG_TOO_MANY_JUMPS     = 'Cannot resolve path "%s": too many parent jumps';
 	private const MSG_EMPTY_STRING       = 'Cannot instantiate an object: the string is empty';
 	private const MSG_INVALID_SEPARATOR  = 'Cannot use separator "%s": only "\\" and "/" are allowed';
 	private const MSG_RELATIVE_PATH      = 'Cannot make the path "%s" %s: "%s" is relative';
-	private const OPTKEY_SEPARATOR = 'separator';
-	private const OPTKEY_PRESERVE_SLASH = 'preserveSlash';
-	private const OPTKEY_TRAILING_SLASH = 'trailingSlash';
-	private const OPTKEY_BASE_RESOLVE = 'baseResolve';
 	private const DEFAULT_OPTIONS = [
 		self::OPTKEY_SEPARATOR      => DIRECTORY_SEPARATOR,
 		self::OPTKEY_PRESERVE_SLASH => false,
