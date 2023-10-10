@@ -53,11 +53,15 @@ class Path {
 	private const MSG_EMPTY_STRING       = 'Cannot instantiate an object: the string is empty';
 	private const MSG_INVALID_SEPARATOR  = 'Cannot use separator "%s": only "\\" and "/" are allowed';
 	private const MSG_RELATIVE_PATH      = 'Cannot make the path "%s" %s: "%s" is relative';
+	private const OPTKEY_SEPARATOR = 'separator';
+	private const OPTKEY_PRESERVE_SLASH = 'preserveSlash';
+	private const OPTKEY_TRAILING_SLASH = 'trailingSlash';
+	private const OPTKEY_BASE_RESOLVE = 'baseResolve';
 	private const DEFAULT_OPTIONS = [
-		'separator'     => DIRECTORY_SEPARATOR,
-		'preserveSlash' => false,
-		'trailingSlash' => false,
-		'baseResolve'   => false
+		self::OPTKEY_SEPARATOR      => DIRECTORY_SEPARATOR,
+		self::OPTKEY_PRESERVE_SLASH => false,
+		self::OPTKEY_TRAILING_SLASH => false,
+		self::OPTKEY_BASE_RESOLVE   => false
 	];
 
 	private string $path;
@@ -166,9 +170,9 @@ class Path {
 	private function format(array $options): self {
 		$options = self::mergeOptions($options);
 		$path = $this->path;
-		$path = join($options['separator'], self::split($this->path));
+		$path = join($options[self::OPTKEY_SEPARATOR], self::split($this->path));
 		$path = $path === '/' || $path === '\\' ? $path : rtrim($path, '/\\');
-		$path .= self::shouldAppendSlash($this->path, $options) ? $options['separator'] : '';
+		$path .= self::shouldAppendSlash($this->path, $options) ? $options[self::OPTKEY_SEPARATOR] : '';
 		return new self($path);
 	}
 
@@ -186,10 +190,10 @@ class Path {
 		foreach ($paths as $path) {
 			if (!$path)
 				continue;
-			$isBase = $options['baseResolve'] && !self::endsWithSlash($result) && !preg_match('/^[a-z]:$/i', $result);
+			$isBase = $options[self::OPTKEY_BASE_RESOLVE] && !self::endsWithSlash($result) && !preg_match('/^[a-z]:$/i', $result);
 			if ($isBase)
 				$result = preg_replace('/[^\\\\\/]+$/', '', $result);
-			$result .= ($result ? $options['separator'] : '').$path;
+			$result .= ($result ? $options[self::OPTKEY_SEPARATOR] : '').$path;
 		}
 		return self::normalize($result, $options);
 	}
@@ -219,7 +223,7 @@ class Path {
 		}
 		$result = join($options['separator'], $result);
 		$result = $result == '/' || $result == '\\' ? $result : rtrim($result, '\\/');
-		return $result.(self::shouldAppendSlash($path, $options) || self::shouldAppendSlash($result, $options) ? $options['separator'] : '');
+		return $result.(self::shouldAppendSlash($path, $options) || self::shouldAppendSlash($result, $options) ? $options[self::OPTKEY_SEPARATOR] : '');
 	}
 
 	private static function split(string $path): array {
@@ -228,8 +232,8 @@ class Path {
 
 	/** @throws InvalidArgumentException */
 	private static function mergeOptions(array $options): array {
-		if (@$options['separator'] && @$options['separator'] !== '\\' && @$options['separator'] !== '/')
-			throw new InvalidArgumentException(sprintf(self::MSG_INVALID_SEPARATOR, $options['separator']));
+		if (@$options[self::OPTKEY_SEPARATOR] && @$options[self::OPTKEY_SEPARATOR] !== '\\' && @$options[self::OPTKEY_SEPARATOR] !== '/')
+			throw new InvalidArgumentException(sprintf(self::MSG_INVALID_SEPARATOR, $options[self::OPTKEY_SEPARATOR]));
 		return array_merge(self::DEFAULT_OPTIONS, $options);
 	}
 
@@ -238,7 +242,7 @@ class Path {
 	}
 
 	private static function shouldAppendSlash(string $path, array $options): bool {
-		return @$options['trailingSlash'] || @$options['preserveSlash'] && self::endsWithSlash($path) || self::isDrive($path);
+		return @$options[self::OPTKEY_TRAILING_SLASH] || @$options[self::OPTKEY_PRESERVE_SLASH] && self::endsWithSlash($path) || self::isDrive($path);
 	}
 
 	private static function isDrive(string $path): bool {
