@@ -3,9 +3,6 @@
     "description": "String paths abstraction",
     "version": "1.0.0",
     "type": "library",
-    "require-dev": {
-        "phpunit/phpunit": "9.5.20"
-    },
     "license": "MIT",
     "scripts": {
         "test": "phpunit"
@@ -24,5 +21,10 @@
             "email": "nil20122013@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">= 8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    }
 }
