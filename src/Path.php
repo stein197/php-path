@@ -37,6 +37,9 @@ use const DIRECTORY_SEPARATOR;
  * 
  * When formatted, all paths have `DIRECTORY_SEPARATOR` separator and don't end with a trailing slash by default,
  * although it can be changed when passing an options object down to {@link \Stein197\Path::format()} function.
+ * 
+ * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
+ * that expect strings as a parameter.
  */
 class Path implements Stringable {
 
