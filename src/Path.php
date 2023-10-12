@@ -301,9 +301,9 @@ class Path implements Stringable, Equalable {
 	 * Normalize the given path. The next operations will be performed:
 	 * - Removing redundant slashes ('C:\\\\Windows\\file.txt' -> 'C:\\Windows\\file.txt')
 	 * - Removing current directory path ('./vendor' -> 'vendor')
-	 * - Removing parent jumps ('vendor/../public' -> 'vendor/public')
+	 * - Removing parent jumps ('vendor/../public' -> 'public')
 	 * - Unification of slashes (`DIRECTORY_SEPARATOR` is used, '\\usr/bin' -> '/usr/bin')
-	 * - Trimming of trailing slashes ('/usr/bin/' -> '/usr/bin/')
+	 * - Trimming of trailing slashes ('/usr/bin/' -> '/usr/bin')
 	 * - Capitalizing drive letters ('c:/windows' -> 'C:/windows')
 	 * 
 	 * Note, that PHP's `realpath()` returns `false` if the path doesn't exist. `Path::normalize()` doesn't rely on a
