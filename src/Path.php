@@ -282,6 +282,22 @@ class Path implements Stringable, Equalable {
 	}
 
 	/**
+	 * Normalize a path and expand environment variables like '%SystemRoot%' for Windows and '$HOME', '~' for Unix.
+	 * Windows-like variables enclosed within percent characters are considered as case-insensetive, while for Unix-like 
+	 * ones considered as case-sensetive.
+	 * @param string $path Path to expand variables within.
+	 * @param array $env Override environment variables.
+	 * @return Path Path with expanded variables.
+	 * ```php
+	 * // An example
+	 * Path::expand('%SystemRoom%\\Downloads'); // Path('C:\\Users\\Admin\\Downloads')
+	 * Path::expand('$HOME\\bin');              // Path('/home/admin/bin')
+	 * Path::expand('~/downloads');             // Path('/home/admin/downloads')
+	 * ```
+	 */
+	public static function expand(string $path, ?array $env): self {} // TODO
+
+	/**
 	 * Normalize the given path. The next operations will be performed:
 	 * - Removing redundant slashes ('C:\\\\Windows\\file.txt' -> 'C:\\Windows\\file.txt')
 	 * - Removing current directory path ('./vendor' -> 'vendor')

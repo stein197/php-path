@@ -164,4 +164,5 @@ describe('\\Stein197\\Path::toAbsolute()', function () {})->skip();
 describe('\\Stein197\\Path::toRelative()', function () {})->skip();
 describe('\\Stein197\\Path::format()', function () {})->skip();
 describe('\\Stein197\\Path::resolve()', function () {})->skip();
+describe('\\Stein197\\Path::expand()', function () {})->skip();
 describe('\\Stein197\\Path::normalize()', function () {})->skip();
