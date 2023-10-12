@@ -22,17 +22,21 @@ describe('\\Stein197\\Path::isAbsolute()', function () {})->skip();
 describe('\\Stein197\\Path::isRelative()', function () {})->skip();
 
 describe('\\Stein197\\Path::isRoot()', function () {
-	test('Windows', function () {
+	test('Windows: normalized path', function () {
 		expect((new Path('C:'))->isRoot())->toBeTrue();
 		expect((new Path('c:'))->isRoot())->toBeTrue();
 		expect((new Path('C:\\'))->isRoot())->toBeTrue();
 		expect((new Path('C:/'))->isRoot())->toBeTrue();
-		expect((new Path('C:\\/'))->isRoot())->toBeTrue();
+	});
+	test('Windows: denormalized path', function () {
+		expect((new Path('C:\\//'))->isRoot())->toBeTrue();
 		expect((new Path('C:/\\'))->isRoot())->toBeTrue();
 	});
-	test('Unix', function () {
+	test('Unix: normalized path', function () {
 		expect((new Path('/'))->isRoot())->toBeTrue();
 		expect((new Path('\\'))->isRoot())->toBeTrue();
+	});
+	test('Unix: denormalized path', function () {
 		expect((new Path('\\/'))->isRoot())->toBeTrue();
 		expect((new Path('/\\'))->isRoot())->toBeTrue();
 	});
@@ -48,25 +52,35 @@ describe('\\Stein197\\Path::isRoot()', function () {
 describe('\\Stein197\\Path::getParent()', function () {})->skip();
 
 describe('\\Stein197\\Path::getType()', function () {
-	test('Windows', function () {
+	test('Windows: normalized path', function () {
 		expect((new Path('C:'))->getType())->toBe(PathType::Windows);
 		expect((new Path('c:'))->getType())->toBe(PathType::Windows);
 		expect((new Path('c:\\'))->getType())->toBe(PathType::Windows);
 		expect((new Path('C:/'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:\\/Windows'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:/\\Windows'))->getType())->toBe(PathType::Windows);
 	});
-	test('Unix', function () {
+	test('Windows: denormalized path', function () {
+		expect((new Path('c:/\\'))->getType())->toBe(PathType::Windows);
+		expect((new Path('C:/\\'))->getType())->toBe(PathType::Windows);
+	});
+	test('Unix: normalized path', function () {
 		expect((new Path('/'))->getType())->toBe(PathType::Unix);
 		expect((new Path('\\'))->getType())->toBe(PathType::Unix);
 		expect((new Path('/usr'))->getType())->toBe(PathType::Unix);
 		expect((new Path('\\usr/bin'))->getType())->toBe(PathType::Unix);
-		expect((new Path('/usr\\'))->getType())->toBe(PathType::Unix);
-		expect((new Path('\\usr/bin//'))->getType())->toBe(PathType::Unix);
 	});
-	test('null', function () {
+	test('Unix: denormalized path', function () {
+		expect((new Path('/\\'))->getType())->toBe(PathType::Unix);
+		expect((new Path('/\\'))->getType())->toBe(PathType::Unix);
+		expect((new Path('/usr//'))->getType())->toBe(PathType::Unix);
+		expect((new Path('\\usr\\/bin'))->getType())->toBe(PathType::Unix);
+	});
+	test('null: normalized path', function () {
 		expect((new Path('filename.txt'))->getType())->toBeNull();
-		expect((new Path('.git'))->getType())->toBeNull();
+		expect((new Path('.git/hooks'))->getType())->toBeNull();
+	});
+	test('null: denormalized path', function () {
+		expect((new Path('filename.txt\\/'))->getType())->toBeNull();
+		expect((new Path('.git//\\hooks'))->getType())->toBeNull();
 	});
 });
 
