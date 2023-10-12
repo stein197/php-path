@@ -18,7 +18,52 @@ describe('\\Stein197\\Path::__construct()', function () {
 
 describe('\\Stein197\\Path::__toString()', function () {})->skip();
 describe('\\Stein197\\Path::equals()', function () {})->skip();
-describe('\\Stein197\\Path::isAbsolute()', function () {})->skip();
+
+describe('\\Stein197\\Path::isAbsolute()', function () {
+	test('Should return true for normalized root paths', function () {
+		expect((new Path('C:'))->isAbsolute())->toBeTrue();
+		expect((new Path('C:/'))->isAbsolute())->toBeTrue();
+		expect((new Path('C:\\'))->isAbsolute())->toBeTrue();
+		expect((new Path('/'))->isAbsolute())->toBeTrue();
+		expect((new Path('\\'))->isAbsolute())->toBeTrue();
+	});
+	test('Should return true for denormalized root paths', function () {
+		expect((new Path('C://'))->isAbsolute())->toBeTrue();
+		expect((new Path('C:\\/'))->isAbsolute())->toBeTrue();
+		expect((new Path('/\\'))->isAbsolute())->toBeTrue();
+		expect((new Path('\\/'))->isAbsolute())->toBeTrue();
+	});
+	test('Should return true for normalized absolute paths', function () {
+		expect((new Path('c:\\Windows\\Users'))->isAbsolute())->toBeTrue();
+		expect((new Path('/usr/www/root'))->isAbsolute())->toBeTrue();
+	});
+	test('Should return true for denormalized absolute paths', function () {
+		expect((new Path('c:\\\\Windows\\Users\\'))->isAbsolute())->toBeTrue();
+		expect((new Path('/usr////www/root///'))->isAbsolute())->toBeTrue();
+	});
+	test('Should return false for normalized relative paths', function () {
+		expect((new Path('vendor/autoload.php'))->isAbsolute())->toBeFalse();
+		expect((new Path('users\\Admin'))->isAbsolute())->toBeFalse();
+	});
+	test('Should return false for denormalized relative paths', function () {
+		expect((new Path('vendor///autoload.php'))->isAbsolute())->toBeFalse();
+		expect((new Path('users\\\\Admin\\'))->isAbsolute())->toBeFalse();
+	});
+	test('Should return false for current directory', function () {
+		expect((new Path('.'))->isAbsolute())->toBeFalse();
+	});
+	test('Should return false for parent directory', function () {
+		expect((new Path('..'))->isAbsolute())->toBeFalse();
+	});
+	test('Should return for normalized paths that start with a current directory', function () {
+		expect((new Path('./vendor/autoload.php'))->isAbsolute())->toBeFalse();
+		expect((new Path('.\users\\Admin'))->isAbsolute())->toBeFalse();
+	});
+	test('Should return for normalized paths that start with a parent directory', function () {
+		expect((new Path('..\\vendor///autoload.php'))->isAbsolute())->toBeFalse();
+		expect((new Path('../users\\\\Admin\\'))->isAbsolute())->toBeFalse();
+	});
+});
 
 describe('\\Stein197\\Path::isRelative()', function () {
 	test('Should return false for root paths', function () {
