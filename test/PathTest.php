@@ -19,7 +19,38 @@ describe('\\Stein197\\Path::__construct()', function () {
 describe('\\Stein197\\Path::__toString()', function () {})->skip();
 describe('\\Stein197\\Path::equals()', function () {})->skip();
 describe('\\Stein197\\Path::isAbsolute()', function () {})->skip();
-describe('\\Stein197\\Path::isRelative()', function () {})->skip();
+
+describe('\\Stein197\\Path::isRelative()', function () {
+	test('Should return false for root paths', function () {
+		expect((new Path('C:'))->isRelative())->toBeFalse();
+		expect((new Path('c:/'))->isRelative())->toBeFalse();
+		expect((new Path('c:\\'))->isRelative())->toBeFalse();
+		expect((new Path('/'))->isRelative())->toBeFalse();
+		expect((new Path('\\'))->isRelative())->toBeFalse();
+	});
+	test('Should return false for absolute paths', function () {
+		expect((new Path('C:\\Windows\\'))->isRelative())->toBeFalse();
+		expect((new Path('c:/users/'))->isRelative())->toBeFalse();
+		expect((new Path('/usr/bin'))->isRelative())->toBeFalse();
+	});
+	test('Should return true for relative paths', function () {
+		expect((new Path('file.txt'))->isRelative())->toBeTrue();
+		expect((new Path('vendor/autoload.php'))->isRelative())->toBeTrue();
+		expect((new Path('vendor/phpunit\\\\phpunit/'))->isRelative())->toBeTrue();
+	});
+	test('Should return true for current directory', function () {
+		expect((new Path('.'))->isRelative())->toBeTrue();
+	});
+	test('Should return true for parent directory', function () {
+		expect((new Path('..'))->isRelative())->toBeTrue();
+	});
+	test('Should return true for paths that start with a current directory', function () {
+		expect((new Path('./vendor'))->isRelative())->toBeTrue();
+	});
+	test('Should return true for paths that start with a parent directory', function () {
+		expect((new Path('..\\users'))->isRelative())->toBeTrue();
+	});
+});
 
 describe('\\Stein197\\Path::isRoot()', function () {
 	test('Windows: normalized path', function () {
