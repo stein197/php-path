@@ -20,7 +20,31 @@ describe('\\Stein197\\Path::__toString()', function () {})->skip();
 describe('\\Stein197\\Path::equals()', function () {})->skip();
 describe('\\Stein197\\Path::isAbsolute()', function () {})->skip();
 describe('\\Stein197\\Path::isRelative()', function () {})->skip();
-describe('\\Stein197\\Path::isRoot()', function () {})->skip();
+
+describe('\\Stein197\\Path::isRoot()', function () {
+	test('Windows', function () {
+		expect((new Path('C:'))->isRoot())->toBeTrue();
+		expect((new Path('c:'))->isRoot())->toBeTrue();
+		expect((new Path('C:\\'))->isRoot())->toBeTrue();
+		expect((new Path('C:/'))->isRoot())->toBeTrue();
+		expect((new Path('C:\\/'))->isRoot())->toBeTrue();
+		expect((new Path('C:/\\'))->isRoot())->toBeTrue();
+	});
+	test('Unix', function () {
+		expect((new Path('/'))->isRoot())->toBeTrue();
+		expect((new Path('\\'))->isRoot())->toBeTrue();
+		expect((new Path('\\/'))->isRoot())->toBeTrue();
+		expect((new Path('/\\'))->isRoot())->toBeTrue();
+	});
+	test('none', function () {
+		expect((new Path('C:\\Windows'))->isRoot())->toBeFalse();
+		expect((new Path('c:/Windows'))->isRoot())->toBeFalse();
+		expect((new Path('/usr/bin'))->isRoot())->toBeFalse();
+		expect((new Path('\\usr/bin'))->isRoot())->toBeFalse();
+		expect((new Path('file.txt'))->isRoot())->toBeFalse();
+	});
+});
+
 describe('\\Stein197\\Path::getParent()', function () {})->skip();
 
 describe('\\Stein197\\Path::getType()', function () {
@@ -29,14 +53,16 @@ describe('\\Stein197\\Path::getType()', function () {
 		expect((new Path('c:'))->getType())->toBe(PathType::Windows);
 		expect((new Path('c:\\'))->getType())->toBe(PathType::Windows);
 		expect((new Path('C:/'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:\\Windows'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:/Windows'))->getType())->toBe(PathType::Windows);
+		expect((new Path('C:\\/Windows'))->getType())->toBe(PathType::Windows);
+		expect((new Path('C:/\\Windows'))->getType())->toBe(PathType::Windows);
 	});
 	test('Unix', function () {
 		expect((new Path('/'))->getType())->toBe(PathType::Unix);
 		expect((new Path('\\'))->getType())->toBe(PathType::Unix);
 		expect((new Path('/usr'))->getType())->toBe(PathType::Unix);
 		expect((new Path('\\usr/bin'))->getType())->toBe(PathType::Unix);
+		expect((new Path('/usr\\'))->getType())->toBe(PathType::Unix);
+		expect((new Path('\\usr/bin//'))->getType())->toBe(PathType::Unix);
 	});
 	test('null', function () {
 		expect((new Path('filename.txt'))->getType())->toBeNull();
