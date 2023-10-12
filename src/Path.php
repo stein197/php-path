@@ -41,7 +41,7 @@ use const DIRECTORY_SEPARATOR;
  * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
  * that expect strings as a parameter.
  */
-class Path implements Stringable {
+class Path implements Stringable, Equalable {
 
 	/**
 	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an error is thrown.
@@ -104,6 +104,10 @@ class Path implements Stringable {
 
 	public function __toString(): string {
 		return $this->format(self::DEFAULT_OPTIONS);
+	}
+
+	public function equals($path): bool {
+		return $path instanceof self && $this->format() === $path->format();
 	}
 
 	/**

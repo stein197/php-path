@@ -17,6 +17,7 @@ describe('\\Stein197\\Path::__construct()', function () {
 });
 
 describe('\\Stein197\\Path::__toString()', function () {})->skip();
+describe('\\Stein197\\Path::equals()', function () {})->skip();
 describe('\\Stein197\\Path::isAbsolute()', function () {})->skip();
 describe('\\Stein197\\Path::isRelative()', function () {})->skip();
 describe('\\Stein197\\Path::isRoot()', function () {})->skip();

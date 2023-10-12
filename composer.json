@@ -22,7 +22,8 @@
         }
     ],
     "require": {
-        "php": ">= 8.2"
+        "php": ">= 8.2",
+        "stein197/equalable": "^1.0"
     },
     "require-dev": {
         "pestphp/pest": "^2.23"
