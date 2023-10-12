@@ -107,7 +107,7 @@ class Path implements Stringable, Equalable {
 	}
 
 	public function equals($path): bool {
-		return $path instanceof self && $this->format() === $path->format();
+		return $path instanceof self && self::normalize($this)->path === self::normalize($path)->path;
 	}
 
 	/**
