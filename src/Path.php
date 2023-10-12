@@ -68,7 +68,7 @@ class Path implements Stringable, Equalable {
 	private const REGEX_SLASH = '/[\\\\\/]+/';
 	private const REGEX_PATH_ABSOLUTE_WIN = '/^(?:[a-z]:)[\\\\\/]?/i';
 	private const REGEX_PATH_ABSOLUTE_NIX = '/^[\\\\\/]/';
-	private const REGEX_ROOT = '/^(?:[a-z]:)?[\\\\\/]?$/i';
+	private const REGEX_ROOT = '/^(?:[a-z]:)?[\\\\\/]*$/i';
 	private const DIR_CURRENT = '.';
 	private const DIR_PARENT = '..';
 	private const ALLOWED_SEPARATORS = ['\\', '/'];
