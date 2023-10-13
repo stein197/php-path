@@ -89,18 +89,16 @@ class Path implements Stringable, Equalable {
 	/**
 	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
 	 * constructor, then it holds what was passed to the constructor. Other methods that return `Path` instance will
-	 * always have normalized `$raw` property.
+	 * always have normalized `$path` property.
 	 * ```php
 	 * // An example
 	 * $p = new Path('/a/b\\c/');
 	 * $p->format(); // could be '/a/b/c'
-	 * $p->raw;      // always '/a/b\\c/'
+	 * $p->path;      // always '/a/b\\c/'
 	 * ```
 	 * @var string
 	 */
-	public readonly string $raw;
-
-	private string $path;
+	public readonly string $path;
 
 	/**
 	 * Create a new path object.
@@ -108,8 +106,8 @@ class Path implements Stringable, Equalable {
 	 * @throws InvalidArgumentException When the string is empty.
 	 */
 	public function __construct(string | self $data) {
-		$this->path = $this->raw = strval($data);
-		if (!$this->raw)
+		$this->path = strval($data);
+		if (!$this->path)
 			throw new InvalidArgumentException('Cannot instantiate a path object: the path string is empty');
 	}
 
@@ -178,7 +176,7 @@ class Path implements Stringable, Equalable {
 	public function getParent(): ?self {
 		try {
 			$normalized = self::normalize($this);
-			return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->raw));
+			return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->path));
 		} catch (InvalidArgumentException) {
 			return null;
 		}
