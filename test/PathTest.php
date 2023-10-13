@@ -253,5 +253,10 @@ describe('\\Stein197\\Path::normalize()', function () {
 		expect(Path::normalize(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
 		expect(Path::normalize('usr' . DIRECTORY_SEPARATOR . 'bin')->raw)->toBe('usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
+	test('Should return the same result when normalizing twice', function () {
+		$p1 = Path::normalize('C://\\.//.\\Windows/..\\Windows/Fonts/../Fonts');
+		$p2 = Path::normalize($p1);
+		expect($p2->raw)->toBe($p1->raw);
+	});
 	test('Complex examples', function () {})->skip();
 });
