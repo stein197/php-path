@@ -161,7 +161,39 @@ describe('\\Stein197\\Path::getType()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::toAbsolute()', function () {})->skip();
+describe('\\Stein197\\Path::toAbsolute()', function () {
+	test('Should throw an exception when the base path is relative', function () {
+		expect(fn () => (new Path('.'))->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
+	});
+	test('Should throw an exception when there are too many parent jumps in the current directory', function () {
+		expect(fn () => (new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\Users'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'C:\\Windows\\Users' . DIRECTORY_SEPARATOR . 'vendor/../../..\': too many parent jumps');
+	});
+	test('Should return the path itself when it is already absolute', function () {
+		expect((new Path('/usr/bin'))->toAbsolute('C:\\Windows')->raw)->toBe('/usr/bin');
+		expect((new Path('C:\\Windows'))->toAbsolute('/usr/bin')->raw)->toBe('C:\\Windows');
+	});
+	test('Should return correct result when the base is root', function () {
+		expect((new Path('vendor/autoload.php'))->toAbsolute('C:')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect((new Path('vendor/autoload.php'))->toAbsolute('C:\\')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect((new Path('vendor/autoload.php'))->toAbsolute('/')->raw)->toBe(DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+	});
+	test('Should return the base path when the current one is a current directory', function () {
+		expect((new Path('.'))->toAbsolute('/')->raw)->toBe(DIRECTORY_SEPARATOR);
+		expect((new Path('.'))->toAbsolute('c:')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect((new Path('.'))->toAbsolute('C:\\Windows')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect((new Path('.'))->toAbsolute('/usr//\\bin/.')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+	});
+	test('Should return a parent of the base when the current one is a parent directory', function () {
+		expect((new Path('..'))->toAbsolute('C:\\Windows')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect((new Path('..'))->toAbsolute('/usr//\\bin/.')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr');
+		expect((new Path('..'))->toAbsolute('C:\\Windows\\Users')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect((new Path('..'))->toAbsolute('/usr//\\bin/php')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+	});
+	test('Should return an absolute path', function () {
+		expect((new Path('vendor/autoload.php'))->toAbsolute('C:\\inetpub\\wwwroot\\project')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'inetpub' . DIRECTORY_SEPARATOR . 'wwwroot' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+	});
+});
+
 describe('\\Stein197\\Path::toRelative()', function () {})->skip();
 describe('\\Stein197\\Path::format()', function () {})->skip();
 describe('\\Stein197\\Path::resolve()', function () {})->skip();
