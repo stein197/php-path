@@ -367,7 +367,7 @@ class Path implements Stringable, Equalable {
 		if (!preg_match(self::REGEX_ROOT, $result))
 			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
 		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result))
-			$result .= self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
+			$result = rtrim($result, '\\/') . self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
 		if (!$result)
 			$result = '.';
 		return new self($result);
