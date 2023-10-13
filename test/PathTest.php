@@ -166,9 +166,10 @@ describe('\\Stein197\\Path::toRelative()', function () {})->skip();
 describe('\\Stein197\\Path::format()', function () {})->skip();
 describe('\\Stein197\\Path::resolve()', function () {})->skip();
 describe('\\Stein197\\Path::expand()', function () {})->skip();
+
 describe('\\Stein197\\Path::normalize()', function () {
-	test('Should throw an exception when the path is empty', function () {
-		expect(fn () => Path::normalize(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
+	test('Should return a current directory when the string is empty', function () {
+		expect((string) Path::normalize(''))->toBe('.');
 	});
 	test('Should throw an exception when the path is a parent directory', function () {
 		expect(fn () => Path::normalize('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
@@ -180,7 +181,7 @@ describe('\\Stein197\\Path::normalize()', function () {
 		expect(fn () => Path::normalize('c:\\..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'c:\\..\': too many parent jumps');
 		expect(fn () => Path::normalize('c:\\../.'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'c:\\../.\': too many parent jumps');
 		expect(fn () => Path::normalize('/..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/..\': too many parent jumps');
-		expect(fn () => Path::normalize('/..\\..\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/../\\..\\\': too many parent jumps');
+		expect(fn () => Path::normalize('/..\\..\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/..\\..\\\': too many parent jumps');
 	});
 	test('Should throw an exception when there are too many parent jumps', function () {
 		expect(fn () => Path::normalize('vendor/bin/../../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'vendor/bin/../../..\': too many parent jumps');

@@ -46,6 +46,8 @@ use const DIRECTORY_SEPARATOR;
  * 
  * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
  * that expect strings as a parameter.
+ * 
+ * `__toString()` returns normalized path.
  */
 class Path implements Stringable, Equalable {
 
@@ -344,7 +346,6 @@ class Path implements Stringable, Equalable {
 	 * Path::normalize('C:\\Windows\\..\\..');    // an exception
 	 * ```
 	 */
-	// TODO: Uppercase drive letter when it's a windows path
 	public static function normalize(string $path): self {
 		$result = [];
 		$parts = self::split($path);
@@ -367,6 +368,8 @@ class Path implements Stringable, Equalable {
 			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
 		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result))
 			$result .= self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
+		if (!$result)
+			$result = '.';
 		return new self($result);
 	}
 
