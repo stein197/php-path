@@ -169,7 +169,7 @@ describe('\\Stein197\\Path::expand()', function () {})->skip();
 
 describe('\\Stein197\\Path::normalize()', function () {
 	test('Should return a current directory when the string is empty', function () {
-		expect((string) Path::normalize(''))->toBe('.');
+		expect(Path::normalize('')->raw)->toBe('.');
 	});
 	test('Should throw an exception when the path is a parent directory', function () {
 		expect(fn () => Path::normalize('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
@@ -187,71 +187,71 @@ describe('\\Stein197\\Path::normalize()', function () {
 		expect(fn () => Path::normalize('vendor/bin/../../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'vendor/bin/../../..\': too many parent jumps');
 	});
 	test('Should return \'.\' when the path is a current directory', function () {
-		expect((string) Path::normalize('.'))->toBe('.');
-		expect((string) Path::normalize('./'))->toBe('.');
-		expect((string) Path::normalize('.\\'))->toBe('.');
+		expect(Path::normalize('.')->raw)->toBe('.');
+		expect(Path::normalize('./')->raw)->toBe('.');
+		expect(Path::normalize('.\\')->raw)->toBe('.');
 	});
 	test('Should return \'.\' when the resulting path is a current directory', function () {
-		expect((string) Path::normalize('vendor/..\\bin/..\\'))->toBe('.');
-		expect((string) Path::normalize('vendor/bin/..\\..'))->toBe('.');
+		expect(Path::normalize('vendor/..\\bin/..\\')->raw)->toBe('.');
+		expect(Path::normalize('vendor/bin/..\\..')->raw)->toBe('.');
 	});
 	test('Should return the string itself when it is a single name', function () {
-		expect((string) Path::normalize('file.txt'))->toBe('file.txt');
-		expect((string) Path::normalize('vendor'))->toBe('vendor');
-		expect((string) Path::normalize('.git'))->toBe('.git');
+		expect(Path::normalize('file.txt')->raw)->toBe('file.txt');
+		expect(Path::normalize('vendor')->raw)->toBe('vendor');
+		expect(Path::normalize('.git')->raw)->toBe('.git');
 	});
 	test('Should collapse redundant directory separators', function () {
-		expect((string) Path::normalize('vendor///autoload.php'))->toBe('vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
-		expect((string) Path::normalize('vendor///autoload.php'))->toBe('vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
-		expect((string) Path::normalize('Windows\\\\Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('Windows\\\\Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('vendor///autoload.php')->raw)->toBe('vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::normalize('vendor///autoload.php')->raw)->toBe('vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::normalize('Windows\\\\Fonts')->raw)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('Windows\\\\Fonts')->raw)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
 	});
 	test('Should unify directory separators to DIRECTORY_SEPARATOR constant', function () {
-		expect((string) Path::normalize('a/b\\c'))->toBe('a' . DIRECTORY_SEPARATOR . 'b' . DIRECTORY_SEPARATOR . 'c');
+		expect(Path::normalize('a/b\\c')->raw)->toBe('a' . DIRECTORY_SEPARATOR . 'b' . DIRECTORY_SEPARATOR . 'c');
 	});
 	test('Should trim trailing slash', function () {
-		expect((string) Path::normalize('vendor/bin/'))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
-		expect((string) Path::normalize('vendor\\bin\\'))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::normalize('vendor/bin/')->raw)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::normalize('vendor\\bin\\')->raw)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should remove current directory parts', function () {
-		expect((string) Path::normalize('./usr/www/./././html/.'))->toBe('usr' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
+		expect(Path::normalize('./usr/www/./././html/.')->raw)->toBe('usr' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
 	});
 	test('Should collapse parent directory parts', function () {
-		expect((string) Path::normalize('usr/..'))->toBe('.');
-		expect((string) Path::normalize('usr/../home'))->toBe('home');
-		expect((string) Path::normalize('usr/../home/..'))->toBe('.');
-		expect((string) Path::normalize('usr/../home/user/../admin'))->toBe('home' . DIRECTORY_SEPARATOR . 'admin');
+		expect(Path::normalize('usr/..')->raw)->toBe('.');
+		expect(Path::normalize('usr/../home')->raw)->toBe('home');
+		expect(Path::normalize('usr/../home/..')->raw)->toBe('.');
+		expect(Path::normalize('usr/../home/user/../admin')->raw)->toBe('home' . DIRECTORY_SEPARATOR . 'admin');
 	});
 	test('Should capitalize drive letters', function () {
-		expect((string) Path::normalize('c:\\'))->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('c:/'))->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::normalize('c:\\')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::normalize('c:/')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
 	});
 	test('Should correctly normalize root paths', function () {
-		expect((string) Path::normalize('c:'))->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('c:\\'))->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('C://'))->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('/'))->toBe(DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('\\'))->toBe(DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('////'))->toBe(DIRECTORY_SEPARATOR);
-		expect((string) Path::normalize('\\\\'))->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::normalize('c:')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::normalize('c:\\')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::normalize('C://')->raw)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::normalize('/')->raw)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::normalize('\\')->raw)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::normalize('////')->raw)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::normalize('\\\\')->raw)->toBe(DIRECTORY_SEPARATOR);
 	});
 	test('Should correctly normalize absolute paths', function () {
-		expect((string) Path::normalize('c:\\Windows/Fonts'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('c:\\./Windows/..\\\\/Windows/./Fonts\\'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('\\usr/bin\\\\php'))->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
-		expect((string) Path::normalize('/./usr/../usr/bin\\\\php\\.'))->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
+		expect(Path::normalize('c:\\Windows/Fonts')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('c:\\./Windows/..\\\\/Windows/./Fonts\\')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('\\usr/bin\\\\php')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
+		expect(Path::normalize('/./usr/../usr/bin\\\\php\\.')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
 	});
 	test('Should correctly normalize relative paths', function () {
-		expect((string) Path::normalize('Windows/Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('./Windows/..\\\\/Windows/./Fonts\\'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('usr/bin\\\\php'))->toBe('usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
-		expect((string) Path::normalize('./usr/../usr/bin\\\\php\\.'))->toBe('usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
+		expect(Path::normalize('Windows/Fonts')->raw)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('./Windows/..\\\\/Windows/./Fonts\\')->raw)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('usr/bin\\\\php')->raw)->toBe('usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
+		expect(Path::normalize('./usr/../usr/bin\\\\php\\.')->raw)->toBe('usr' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php');
 	});
 	test('Should return the string itself when it\'s already normalized', function () {
-		expect((string) Path::normalize('Windows' . DIRECTORY_SEPARATOR . 'Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin'))->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
-		expect((string) Path::normalize('usr' . DIRECTORY_SEPARATOR . 'bin'))->toBe('usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::normalize('Windows' . DIRECTORY_SEPARATOR . 'Fonts')->raw)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts')->raw)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect(Path::normalize(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin')->raw)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::normalize('usr' . DIRECTORY_SEPARATOR . 'bin')->raw)->toBe('usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Complex examples', function () {})->skip();
 });
