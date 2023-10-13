@@ -197,7 +197,16 @@ describe('\\Stein197\\Path::toAbsolute()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::toRelative()', function () {})->skip();
+describe('\\Stein197\\Path::toRelative()', function () {
+	test('Should throw an exception when the current path is absolute', function () {})->skip();
+	test('Should throw an exception when the current path is root', function () {})->skip();
+	test('Should return correct result when the base is an absolute path', function () {})->skip();
+	test('Should return correct result when the base is a root path', function () {})->skip();
+	test('Should return the path itself when the path is already relative', function () {})->skip();
+	test('Should return the path itself when the base is a current directory', function () {})->skip();
+	test('Should return a parent of the path when the base is a parent directory', function () {})->skip();
+});
+
 describe('\\Stein197\\Path::format()', function () {})->skip();
 describe('\\Stein197\\Path::resolve()', function () {})->skip();
 describe('\\Stein197\\Path::expand()', function () {})->skip();
