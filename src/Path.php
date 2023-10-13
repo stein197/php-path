@@ -8,6 +8,7 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_search;
+use function is_string;
 use function getenv;
 use function join;
 use function ltrim;
@@ -128,7 +129,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function equals($path): bool {
 		try {
-			return $path instanceof self && self::normalize($this)->path === self::normalize($path)->path;
+			return ($path instanceof self || is_string($path)) && self::normalize($this)->path === self::normalize($path)->path;
 		} catch (InvalidArgumentException) {
 			return false;
 		}
