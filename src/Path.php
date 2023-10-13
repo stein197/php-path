@@ -87,7 +87,9 @@ class Path implements Stringable, Equalable {
 	];
 
 	/**
-	 * Raw path string that was passed to the constructor. It differs from what other methods could return.
+	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
+	 * constructor, then it holds what was passed to the constructor. Other methods that return `Path` instance will
+	 * always have normalized `$raw` property.
 	 * ```php
 	 * // An example
 	 * $p = new Path('/a/b\\c/');
@@ -174,11 +176,10 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function getParent(): ?self {
-		if ($this->isRoot())
-			return null;
 		try {
-			return new self(preg_replace('/[^\\\\\/]+(?:[\\\\\/])?$/', '', $this->path));
-		} catch (Exception) {
+			$normalized = self::normalize($this);
+			return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->raw));
+		} catch (InvalidArgumentException) {
 			return null;
 		}
 	}
