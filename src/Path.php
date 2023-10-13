@@ -42,7 +42,7 @@ use const DIRECTORY_SEPARATOR;
  * (`/`, `C:\`, `D:`)
  * 
  * When formatted, all paths have `DIRECTORY_SEPARATOR` separator and don't end with a trailing slash by default,
- * although it can be changed when passing an options object down to {@link \Stein197\Path::format()} function.
+ * although it can be changed when passing an options object down to {@link \Stein197\FileSystem\Path::format()} function.
  * 
  * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
  * that expect strings as a parameter. When casted to string, a normalized path is returned. If the normalization cannot
