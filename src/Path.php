@@ -8,14 +8,19 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_search;
+use function getenv;
 use function join;
 use function ltrim;
-use function sprintf;
-use function strpos;
-use function strval;
 use function preg_match;
 use function preg_replace;
+use function preg_replace_callback;
 use function preg_split;
+use function sprintf;
+use function str_starts_with;
+use function strpos;
+use function strtolower;
+use function strval;
+use function trim;
 use const DIRECTORY_SEPARATOR;
 
 /**
@@ -69,6 +74,7 @@ class Path implements Stringable, Equalable {
 	private const REGEX_PATH_ABSOLUTE_WIN = '/^(?:[a-z]:)[\\\\\/]?/i';
 	private const REGEX_PATH_ABSOLUTE_NIX = '/^[\\\\\/]/';
 	private const REGEX_ROOT = '/^(?:[a-z]:)?[\\\\\/]*$/i';
+	private const REGEX_ENV_VAR = '/%.+?%|\$.+?(?=[\/\\\\$]|$)/';
 	private const DIR_CURRENT = '.';
 	private const DIR_PARENT = '..';
 	private const ALLOWED_SEPARATORS = ['\\', '/'];
@@ -295,7 +301,27 @@ class Path implements Stringable, Equalable {
 	 * Path::expand('~/downloads');             // Path('/home/admin/downloads')
 	 * ```
 	 */
-	public static function expand(string $path, ?array $env): self {} // TODO
+	public static function expand(string | self $path, ?array $env = null): self {
+		return self::normalize(preg_replace_callback(self::REGEX_ENV_VAR, function (array $matches) use ($env): string {
+			[$match] = $matches;
+			$type = str_starts_with($match, '$') ? PathType::Unix : PathType::Windows;
+			$name = trim($match, '%$');
+			switch ($type) {
+				case PathType::Windows:
+					$name = strtolower($name);
+					if ($env)
+						foreach ($env as $varName => $value)
+							if ($name === strtolower($varName))
+								return $value;
+					break;
+				case PathType::Unix:
+					if ($env && isset($env[$name]))
+						return $env[$name];
+					break;
+			}
+			return getenv($name, true) ?: getenv($name, false) ?: '';
+		}, $path));
+	}
 
 	/**
 	 * Normalize the given path. The next operations will be performed:
@@ -344,7 +370,7 @@ class Path implements Stringable, Equalable {
 	}
 
 	private static function checkOptions(array $options): void {
-		$isValidSeparator = array_search($options[self::OPTKEY_SEPARATOR], self::ALLOWED_SEPARATORS);
+		$isValidSeparator = array_search($options[self::OPTKEY_SEPARATOR], self::ALLOWED_SEPARATORS) !== false;
 		if (!$isValidSeparator)
 			throw new InvalidArgumentException(
 				sprintf(
