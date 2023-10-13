@@ -189,6 +189,9 @@ describe('\\Stein197\\Path::toAbsolute()', function () {
 		expect((new Path('..'))->toAbsolute('C:\\Windows\\Users')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 		expect((new Path('..'))->toAbsolute('/usr//\\bin/php')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
+	test('Should correctly jump out when the current path contains enough parent jumps', function () {
+		expect((new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\Users\\Downloads')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+	});
 	test('Should return an absolute path', function () {
 		expect((new Path('vendor/autoload.php'))->toAbsolute('C:\\inetpub\\wwwroot\\project')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'inetpub' . DIRECTORY_SEPARATOR . 'wwwroot' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 	});
