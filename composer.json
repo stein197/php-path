@@ -12,7 +12,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Stein197\\": "src/"
+            "Stein197\\FileSystem\\": "src/"
         }
     },
     "authors": [

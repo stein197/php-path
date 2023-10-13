@@ -1,5 +1,5 @@
 <?php
-namespace Stein197;
+namespace Stein197\FileSystem;
 
 /**
  * Represent different path types depending on the operating system.

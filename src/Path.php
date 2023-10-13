@@ -1,7 +1,7 @@
 <?php
-namespace Stein197;
+namespace Stein197\FileSystem;
 
-use Exception;
+use Stein197\Equalable;
 use InvalidArgumentException;
 use Stringable;
 use function array_map;

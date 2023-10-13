@@ -1,5 +1,5 @@
 <?php
-namespace Stein197;
+namespace Stein197\FileSystem;
 
 use InvalidArgumentException;
 use function describe;
@@ -7,7 +7,7 @@ use function expect;
 use function test;
 use const DIRECTORY_SEPARATOR;
 
-describe('\\Stein197\\Path::__construct()', function () {
+describe('Path::__construct()', function () {
 	test('Should throw an exception when the string is empty', function () {
 		expect(fn () => new Path(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
 	});
@@ -17,10 +17,10 @@ describe('\\Stein197\\Path::__construct()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::__toString()', function () {})->skip();
-describe('\\Stein197\\Path::equals()', function () {})->skip();
+describe('Path::__toString()', function () {})->skip();
+describe('Path::equals()', function () {})->skip();
 
-describe('\\Stein197\\Path::isAbsolute()', function () {
+describe('Path::isAbsolute()', function () {
 	test('Should return true for normalized root paths', function () {
 		expect((new Path('C:'))->isAbsolute())->toBeTrue();
 		expect((new Path('C:/'))->isAbsolute())->toBeTrue();
@@ -66,7 +66,7 @@ describe('\\Stein197\\Path::isAbsolute()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::isRelative()', function () {
+describe('Path::isRelative()', function () {
 	test('Should return false for root paths', function () {
 		expect((new Path('C:'))->isRelative())->toBeFalse();
 		expect((new Path('c:/'))->isRelative())->toBeFalse();
@@ -98,7 +98,7 @@ describe('\\Stein197\\Path::isRelative()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::isRoot()', function () {
+describe('Path::isRoot()', function () {
 	test('Windows: normalized path', function () {
 		expect((new Path('C:'))->isRoot())->toBeTrue();
 		expect((new Path('c:'))->isRoot())->toBeTrue();
@@ -126,9 +126,9 @@ describe('\\Stein197\\Path::isRoot()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::getParent()', function () {})->skip();
+describe('Path::getParent()', function () {})->skip();
 
-describe('\\Stein197\\Path::getType()', function () {
+describe('Path::getType()', function () {
 	test('Windows: normalized path', function () {
 		expect((new Path('C:'))->getType())->toBe(PathType::Windows);
 		expect((new Path('c:'))->getType())->toBe(PathType::Windows);
@@ -161,7 +161,7 @@ describe('\\Stein197\\Path::getType()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::toAbsolute()', function () {
+describe('Path::toAbsolute()', function () {
 	test('Should throw an exception when the base path is relative', function () {
 		expect(fn () => (new Path('.'))->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
 	});
@@ -197,7 +197,7 @@ describe('\\Stein197\\Path::toAbsolute()', function () {
 	});
 });
 
-describe('\\Stein197\\Path::toRelative()', function () {
+describe('Path::toRelative()', function () {
 	test('Should throw an exception when the current path is absolute', function () {})->skip();
 	test('Should throw an exception when the current path is root', function () {})->skip();
 	test('Should return correct result when the base is an absolute path', function () {})->skip();
@@ -207,11 +207,11 @@ describe('\\Stein197\\Path::toRelative()', function () {
 	test('Should return a parent of the path when the base is a parent directory', function () {})->skip();
 });
 
-describe('\\Stein197\\Path::format()', function () {})->skip();
-describe('\\Stein197\\Path::resolve()', function () {})->skip();
-describe('\\Stein197\\Path::expand()', function () {})->skip();
+describe('Path::format()', function () {})->skip();
+describe('Path::resolve()', function () {})->skip();
+describe('Path::expand()', function () {})->skip();
 
-describe('\\Stein197\\Path::normalize()', function () {
+describe('Path::normalize()', function () {
 	test('Should return a current directory when the string is empty', function () {
 		expect(Path::normalize('')->path)->toBe('.');
 	});
