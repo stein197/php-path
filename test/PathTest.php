@@ -248,7 +248,7 @@ describe('\\Stein197\\Path::normalize()', function () {
 	});
 	test('Should return the string itself when it\'s already normalized', function () {
 		expect((string) Path::normalize('Windows' . DIRECTORY_SEPARATOR . 'Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
-		expect((string) Path::normalize('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts'))->toBe('Windows' . DIRECTORY_SEPARATOR . 'Fonts');
+		expect((string) Path::normalize('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Fonts');
 		expect((string) Path::normalize(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin'))->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
 		expect((string) Path::normalize('usr' . DIRECTORY_SEPARATOR . 'bin'))->toBe('usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
