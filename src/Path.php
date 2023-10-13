@@ -115,8 +115,18 @@ class Path implements Stringable, Equalable {
 		return $this->format(self::DEFAULT_OPTIONS);
 	}
 
+	/**
+	 * Check if the path is equal to another one. Paths are equal when their normalized versions match against each
+	 * other.
+	 * @param mixed $path Path to check against.
+	 * @return bool `true` if both paths are equal.
+	 */
 	public function equals($path): bool {
-		return $path instanceof self && self::normalize($this)->path === self::normalize($path)->path;
+		try {
+			return $path instanceof self && self::normalize($this)->path === self::normalize($path)->path;
+		} catch (InvalidArgumentException) {
+			return false;
+		}
 	}
 
 	/**
