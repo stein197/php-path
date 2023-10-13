@@ -357,9 +357,9 @@ class Path implements Stringable, Equalable {
 	 * Path::normalize('C:\\Windows\\..\\..');    // an exception
 	 * ```
 	 */
-	public static function normalize(string $path): self {
+	public static function normalize(string | self $path): self {
 		$result = [];
-		$parts = self::split($path);
+		$parts = self::split($path instanceof self ? $path->path : $path);
 		foreach ($parts as $part) {
 			if ($part === self::DIR_CURRENT) {
 				continue;

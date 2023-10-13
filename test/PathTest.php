@@ -2,6 +2,7 @@
 namespace Stein197\FileSystem;
 
 use InvalidArgumentException;
+use stdClass;
 use function describe;
 use function expect;
 use function test;
@@ -28,7 +29,31 @@ describe('Path::__toString()', function () {
 	});
 });
 
-describe('Path::equals()', function () {})->skip();
+describe('Path::equals()', function () {
+	test('Should return true for equal normalized paths', function () {
+		expect((new Path('.'))->equals('.'))->toBeTrue();
+		expect((new Path('file.txt'))->equals('file.txt'))->toBeTrue();
+		expect((new Path('vendor'))->equals('vendor'))->toBeTrue();
+		expect((new Path('C:\\Windows\\Users\\Admin'))->equals('C:\\Windows\\Users\\Admin'))->toBeTrue();
+		expect((new Path('/var/www/html'))->equals('/var/www/html'))->toBeTrue();
+	});
+	test('Should return true for equal denormalized paths', function () {
+		expect((new Path('./vendor/.\\\\../vendor/autoload.php'))->equals('vendor\\\\autoload.php'))->toBeTrue();
+		expect((new Path('C:\\Windows\\.././Windows\\Users/./Admin/'))->equals('C:/Windows/Users/Admin'))->toBeTrue();
+		expect((new Path('\\var\\.././var\\www/./html/'))->equals('/var////www\\html'))->toBeTrue();
+	});
+	test('Should return false for unequal paths', function () {
+		expect((new Path('file.txt'))->equals('vendor'))->toBeFalse();
+		expect((new Path('C:/Windows/Users'))->equals('C:\\Windows\\Fonts'))->toBeFalse();
+		expect((new Path('/var/www/html\\project\\'))->equals('\\var\\www\\html///'))->toBeFalse();
+	});
+	test('Should always return false for non-path instances', function () {
+		expect((new Path('.'))->equals(new stdClass))->toBeFalse();
+	});
+	test('Should always return false for null', function () {
+		expect((new Path('.'))->equals(null))->toBeFalse();
+	});
+});
 
 describe('Path::isAbsolute()', function () {
 	test('Should return true for normalized root paths', function () {
