@@ -45,7 +45,8 @@ use const DIRECTORY_SEPARATOR;
  * although it can be changed when passing an options object down to {@link \Stein197\Path::format()} function.
  * 
  * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
- * that expect strings as a parameter.
+ * that expect strings as a parameter. When casted to string, a normalized path is returned. If the normalization cannot
+ * be performed, then the initial string passed to the constructor will be returned.
  * 
  * `__toString()` returns normalized path.
  */
@@ -112,7 +113,11 @@ class Path implements Stringable, Equalable {
 	}
 
 	public function __toString(): string {
-		return $this->format(self::DEFAULT_OPTIONS);
+		try {
+			return $this->format(self::DEFAULT_OPTIONS);
+		} catch (InvalidArgumentException) {
+			return $this->path;
+		}
 	}
 
 	/**

@@ -17,7 +17,16 @@ describe('Path::__construct()', function () {
 	});
 });
 
-describe('Path::__toString()', function () {})->skip();
+describe('Path::__toString()', function () {
+	test('Should return normalized path', function () {
+		expect((string) new Path('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect((string) new Path('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'public');
+	});
+	test('Should return the initial path if the normalization cannot be performed', function () {
+		expect((string) new Path('..'))->toBe('..');
+		expect((string) new Path('var/..\\..'))->toBe('var/..\\..');
+	});
+});
 describe('Path::equals()', function () {})->skip();
 
 describe('Path::isAbsolute()', function () {
