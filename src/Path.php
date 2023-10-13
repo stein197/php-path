@@ -204,10 +204,10 @@ class Path implements Stringable, Equalable {
 	}
 
 	/**
-	 * Convert the path to an absolute one. It's a concatenation of `$base` and the path itself. If the path is already
+	 * Normalize and convert the path to an absolute one. It's a concatenation of `$base` and the path itself. If the path is already
 	 * absolute then the path itself is returned. If the base is not an absolute path, then an exception is thrown.
 	 * @param string|Path $base Path to make this one absolute against.
-	 * @return Path An absolute path.
+	 * @return Path An absolute normalized path.
 	 * @throws InvalidArgumentException If the base is not an absolute path.
 	 * ```php
 	 * // An example
@@ -226,10 +226,10 @@ class Path implements Stringable, Equalable {
 	}
 
 	/**
-	 * Convert the path to a relative one. It rips the `$base` component out of the path. If the path is already
+	 * Normalize and convert the path to a relative one. It rips the `$base` component out of the path. If the path is already
 	 * relative thethe path itself is returned. If the base is not an absolute path, then an exception is thrown.
 	 * @param string|Path $base Path that will be ripped out of the path.
-	 * @return Path A relative path.
+	 * @return Path A relative normalized path.
 	 * @throws InvalidArgumentException If the base is not a relative path.
 	 * ```php
 	 * // An example
