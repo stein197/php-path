@@ -182,6 +182,7 @@ class Path implements Stringable, Equalable {
 	/**
 	 * Get parent of the path. If the path is root then `null` is returned.
 	 * @return null|Path Parent path or `null` if the path is root.
+	 * @throws InvalidArgumentException If normalization cannot be performed on the path.
 	 * ```php
 	 * // An example
 	 * (new Path('/usr/bin'))->getParent(); // Path('/usr')
@@ -189,12 +190,8 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function getParent(): ?self {
-		try {
-			$normalized = self::normalize($this);
-			return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->path));
-		} catch (InvalidArgumentException) {
-			return null;
-		}
+		$normalized = self::normalize($this);
+		return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->path));
 	}
 
 	/**

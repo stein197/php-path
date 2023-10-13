@@ -27,6 +27,7 @@ describe('Path::__toString()', function () {
 		expect((string) new Path('var/..\\..'))->toBe('var/..\\..');
 	});
 });
+
 describe('Path::equals()', function () {})->skip();
 
 describe('Path::isAbsolute()', function () {
