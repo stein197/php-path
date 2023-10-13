@@ -171,19 +171,19 @@ describe('\\Stein197\\Path::normalize()', function () {
 		expect(fn () => Path::normalize(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
 	});
 	test('Should throw an exception when the path is a parent directory', function () {
-		expect(fn () => Path::normalize('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'..\': too many parent jumps');
-		expect(fn () => Path::normalize('../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'../..\': too many parent jumps');
-		expect(fn () => Path::normalize('../'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'../\': too many parent jumps');
-		expect(fn () => Path::normalize('../../'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'../../\': too many parent jumps');
+		expect(fn () => Path::normalize('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
+		expect(fn () => Path::normalize('../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'../..\': too many parent jumps');
+		expect(fn () => Path::normalize('../'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'../\': too many parent jumps');
+		expect(fn () => Path::normalize('../../'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'../../\': too many parent jumps');
 	});
 	test('Should throw an exception when it is a jump out of root', function () {
-		expect(fn () => Path::normalize('c:\\..'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'c:\\..\': too many parent jumps');
-		expect(fn () => Path::normalize('c:\\../.'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'c:\\../.\': too many parent jumps');
-		expect(fn () => Path::normalize('/..'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'/..\': too many parent jumps');
-		expect(fn () => Path::normalize('/..\\..\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'/../\\..\\\': too many parent jumps');
+		expect(fn () => Path::normalize('c:\\..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'c:\\..\': too many parent jumps');
+		expect(fn () => Path::normalize('c:\\../.'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'c:\\../.\': too many parent jumps');
+		expect(fn () => Path::normalize('/..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/..\': too many parent jumps');
+		expect(fn () => Path::normalize('/..\\..\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/../\\..\\\': too many parent jumps');
 	});
 	test('Should throw an exception when there are too many parent jumps', function () {
-		expect(fn () => Path::normalize('vendor/bin/../../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalise the path \'vendor/bin/../../..\': too many parent jumps');
+		expect(fn () => Path::normalize('vendor/bin/../../..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'vendor/bin/../../..\': too many parent jumps');
 	});
 	test('Should return \'.\' when the path is a current directory', function () {
 		expect((string) Path::normalize('.'))->toBe('.');

@@ -354,7 +354,7 @@ class Path implements Stringable, Equalable {
 			} elseif ($part === self::DIR_PARENT) {
 				$isOut = !$result || sizeof($result) === 1 && (!!preg_match(self::REGEX_ROOT, $result[0]) || !$result[0]);
 				if ($isOut)
-					throw new InvalidArgumentException("Cannot normalise the path '{$path}': too many parent jumps");
+					throw new InvalidArgumentException("Cannot normalize the path '{$path}': too many parent jumps");
 				array_pop($result);
 			} else {
 				$result[] = $part;
