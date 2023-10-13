@@ -198,13 +198,26 @@ describe('Path::toAbsolute()', function () {
 });
 
 describe('Path::toRelative()', function () {
-	test('Should throw an exception when the current path is absolute', function () {})->skip();
-	test('Should throw an exception when the current path is root', function () {})->skip();
-	test('Should return correct result when the base is an absolute path', function () {})->skip();
-	test('Should return correct result when the base is a root path', function () {})->skip();
-	test('Should return the path itself when the path is already relative', function () {})->skip();
-	test('Should return the path itself when the base is a current directory', function () {})->skip();
-	test('Should return a parent of the path when the base is a parent directory', function () {})->skip();
+	test('Should throw an exception when the base path is relative', function () {
+		expect(fn () => (new Path('/usr/bin'))->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '/usr/bin' to relative: the base 'home' is not absolute");
+		expect(fn () => (new Path('C:\\Windows\\'))->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path 'C:\\Windows\\' to relative: the base 'home' is not absolute");
+	});
+	test('Should throw an exception when the base path is not a parent of the current path', function () {
+		expect(fn () => (new Path('/usr/bin'))->toRelative('/home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'/usr/bin\' to relative: the base \'/home\' is not a parent of the path');
+		expect(fn () => (new Path('C:\\Windows\\Users'))->toRelative('D:\\Games'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:\\Windows\\Users\' to relative: the base \'D:\\Games\' is not a parent of the path');
+	});
+	test('Should return correct result when the base is an absolute path', function () {
+		expect((new Path('C:\\Windows\\Users/Admin\\Downloads/file.txt'))->toRelative('c:/Windows/Users/Admin')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect((new Path('/var/www/html\\project/public\\index.php'))->toRelative('\\var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
+	});
+	test('Should return correct result when the base is a root path', function () {
+		expect((new Path('C:\\Windows\\Users/Admin\\Downloads/file.txt'))->toRelative('C:')->path)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin' . DIRECTORY_SEPARATOR . 'Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect((new Path('/var/www/html\\project/public\\index.php'))->toRelative('\\')->path)->toBe('var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php');
+	});
+	test('Should return the path itself when the path is already relative', function () {
+		expect((new Path('Downloads\\file.txt'))->toRelative('C:')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect((new Path('public/index.php'))->toRelative('/var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
+	});
 });
 
 describe('Path::format()', function () {})->skip();
