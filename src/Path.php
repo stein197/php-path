@@ -19,6 +19,7 @@ use function sprintf;
 use function str_starts_with;
 use function strpos;
 use function strtolower;
+use function strtoupper;
 use function strval;
 use function trim;
 use const DIRECTORY_SEPARATOR;
@@ -359,9 +360,13 @@ class Path implements Stringable, Equalable {
 				$result[] = $part;
 			}
 		}
+		if (preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result[0]))
+			$result[0] = strtoupper($result[0]);
 		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
 		if (!preg_match(self::REGEX_ROOT, $result))
 			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
+		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result))
+			$result .= self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
 		return new self($result);
 	}
 
