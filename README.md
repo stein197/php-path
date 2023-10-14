@@ -9,7 +9,7 @@ composer require stein197/path
 ## Usage
 ```php
 use Stein197\Path;
-Path::resolve(['/var/www/html', 'assets', 'index.js'], [
+Path::join(['/var/www/html', 'assets', 'index.js'], [
 	'separator' => '/'
 ]); // '/var/www/html/assets/index.js'
 Path::normalize('/a/b/..////d/./c', ['separator' => '\\', 'trailingSlash' => true]); // '\\a\\d\\c\\'

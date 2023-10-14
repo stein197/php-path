@@ -27,8 +27,7 @@ use const DIRECTORY_SEPARATOR;
 
 /**
  * The class provides means to simplify work with paths (strings like 'C:\Windows\System32', '/usr/bin',
- * 'vendor/autoload.php' etc.). The class contains functions that help normalize, resolve (concatenate),
- * format paths and so on.
+ * 'vendor/autoload.php' etc.). The class contains functions that help normalize, join, format paths and so on.
  * All paths fall into three categories:
  * - Absolute
  * - Relative
@@ -236,7 +235,7 @@ class Path implements Stringable, Equalable {
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute())
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
-		return self::resolve($base, $this);
+		return self::join($base, $this);
 	}
 
 	/**
@@ -291,16 +290,16 @@ class Path implements Stringable, Equalable {
 	/**
 	 * Concatenate the given paths (`DIRECTORY_SEPARATOR` is used as a separator) and normalize the result.
 	 * @param string[] $data Paths to concatenate
-	 * @return Path Resolved path.
+	 * @return Path Concatenated path.
 	 * @throws InvalidArgumentException If there are too many parent jumps.
 	 * @uses \Stein197\Path::normalize()
 	 * ```php
 	 * // An example
-	 * Path::resolve(__DIR__, 'vendor/bin', 'phpunit.bat'); // Path('/usr/www/vendor/bin/phpunit.bat')
-	 * Path::resolve('../..', 'phpunit.bat');               // an exception
+	 * Path::join(__DIR__, 'vendor/bin', 'phpunit.bat'); // Path('/usr/www/vendor/bin/phpunit.bat')
+	 * Path::join('../..', 'phpunit.bat');               // an exception
 	 * ```
 	 */
-	public static function resolve(string ...$data): self {
+	public static function join(string ...$data): self {
 		return self::normalize(join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $data));
 	}
 

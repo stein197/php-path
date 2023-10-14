@@ -302,36 +302,36 @@ describe('Path::format()', function () {
 	});
 });
 
-describe('Path::resolve()', function () {
+describe('Path::join()', function () {
 	test('Should throw an exception when there are too many parent jumps', function () {
-		expect(fn () => Path::resolve('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
-		expect(fn () => Path::resolve('/var/www', '..', '..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/var/www' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..\': too many parent jumps');
+		expect(fn () => Path::join('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
+		expect(fn () => Path::join('/var/www', '..', '..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/var/www' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..\': too many parent jumps');
 	});
 	test('Should return a current directory when no arguments were passed', function () {
-		expect(Path::resolve()->path)->toBe('.');
+		expect(Path::join()->path)->toBe('.');
 	});
 	test('Should return the first path when the next ones are current directories', function () {
-		expect(Path::resolve('vendor/bin', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
-		expect(Path::resolve('vendor/bin', '.', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::join('vendor/bin', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::join('vendor/bin', '.', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should return a parent of the first path when the next ones are parent directories', function () {
-		expect(Path::resolve('vendor/bin', '..')->path)->toBe('vendor');
-		expect(Path::resolve('C:\\Windows/Users/Admin', '..', '..')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::join('vendor/bin', '..')->path)->toBe('vendor');
+		expect(Path::join('C:\\Windows/Users/Admin', '..', '..')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 	});
 	test('Should correctly jump to the previous path when next paths contain parent jumps', function () {
-		expect(Path::resolve('C:\\Windows\\Users/Admin', 'Downloads/../Documents')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin' . DIRECTORY_SEPARATOR . 'Documents');
+		expect(Path::join('C:\\Windows\\Users/Admin', 'Downloads/../Documents')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin' . DIRECTORY_SEPARATOR . 'Documents');
 	});
 	test('Should return a normalized path when the passed paths are denormalized', function () {
-		expect(Path::resolve('/var/www\\\\/html', 'project', 'App/./.\\../App', 'Kernel')->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'App' . DIRECTORY_SEPARATOR . 'Kernel');
+		expect(Path::join('/var/www\\\\/html', 'project', 'App/./.\\../App', 'Kernel')->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'App' . DIRECTORY_SEPARATOR . 'Kernel');
 	});
 	test('Should correctly concatenate paths when the next paths are absolute ones', function () {
-		expect(Path::resolve('vendor', '/bin', '\\phpunit')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+		expect(Path::join('vendor', '/bin', '\\phpunit')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
 	});
 	test('Should correctly concatenate paths when the first one is relative', function () {
-		expect(Path::resolve('vendor', 'bin')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::join('vendor', 'bin')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should correctly concatenate paths when the first one is absolute', function () {
-		expect(Path::resolve('/var', 'www/html')->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
+		expect(Path::join('/var', 'www/html')->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
 	});
 });
 
