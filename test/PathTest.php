@@ -161,7 +161,38 @@ describe('Path::isRoot()', function () {
 	});
 });
 
-describe('Path::getParent()', function () {})->skip();
+describe('Path::getParent()', function () {
+	test('Should return null when the path is root', function () {
+		expect((new Path('/'))->getParent())->toBeNull();
+		expect((new Path('\\'))->getParent())->toBeNull();
+		expect((new Path('C:'))->getParent())->toBeNull();
+		expect((new Path('c:/'))->getParent())->toBeNull();
+		expect((new Path('c:\\\\'))->getParent())->toBeNull();
+		expect((new Path('c:\\\\Windows/..'))->getParent())->toBeNull();
+		expect((new Path('/var/www/..\\..'))->getParent())->toBeNull();
+	});
+	test('Should return null when the path is relative and single', function () {
+		expect((new Path('vendor'))->getParent())->toBeNull();
+		expect((new Path('file.txt'))->getParent())->toBeNull();
+		expect((new Path('vendor//..'))->getParent())->toBeNull();
+		expect((new Path('vendor\\bin\\../..'))->getParent())->toBeNull();
+	});
+	test('Should return root when the path is absolute and single', function () {
+		expect((new Path('C:/Windows'))->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect((new Path('/var'))->getParent()->path)->toBe(DIRECTORY_SEPARATOR);
+	});
+	test('Should return correct result when the path is absolute', function () {
+		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect((new Path('C:\\Windows/./././../Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect((new Path('/var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
+		expect((new Path('/var/././../var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
+	});
+	test('Should return correct result when the path is relative', function () {
+		expect((new Path('vendor/bin/phpunit'))->getParent()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect((new Path('Users\\Downloads\\./..\\Downloads///file.txt'))->getParent()->path)->toBe('Users' . DIRECTORY_SEPARATOR . 'Downloads');
+	});
+});
 
 describe('Path::getType()', function () {
 	test('Windows: normalized path', function () {

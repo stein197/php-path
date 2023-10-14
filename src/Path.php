@@ -50,6 +50,8 @@ use const DIRECTORY_SEPARATOR;
  * be performed, then the initial string passed to the constructor will be returned.
  * 
  * `__toString()` returns normalized path.
+ * 
+ * All methods that return a path, always return a normalized one.
  */
 class Path implements Stringable, Equalable {
 
