@@ -286,7 +286,22 @@ describe('Path::toRelative()', function () {
 	});
 });
 
-describe('Path::format()', function () {})->skip();
+describe('Path::format()', function () {
+	test('Should throw an error when the path separator is not a slash', function () {
+		expect(fn () => (new Path('vendor/bin'))->format(['separator' => '.']))->toThrow(InvalidArgumentException::class, 'Cannot format a path: invalid separator \'.\'. Only \'\\\', \'/\' characters are allowed');
+	});
+	test('Should return platform-dependent result when no parameters is passed', function () {
+		expect((new Path('vendor/\\bin'))->format())->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+	});
+	test('Should use specified separator', function () {
+		expect((new Path('vendor\\/bin'))->format([Path::OPTKEY_SEPARATOR => '\\']))->toBe('vendor\\bin');
+		expect((new Path('vendor\\/bin'))->format([Path::OPTKEY_SEPARATOR => '/']))->toBe('vendor/bin');
+	});
+	test('Should append a slash at the end when it is explicitly defined', function () {
+		expect((new Path('vendor/bin'))->format([Path::OPTKEY_TRAILING_SLASH => true]))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR);
+	});
+});
+
 describe('Path::resolve()', function () {})->skip();
 describe('Path::expand()', function () {})->skip();
 
