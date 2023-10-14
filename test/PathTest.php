@@ -5,8 +5,13 @@ use InvalidArgumentException;
 use stdClass;
 use function describe;
 use function expect;
+use function getenv;
+use function putenv;
 use function test;
 use const DIRECTORY_SEPARATOR;
+
+beforeAll(fn () => putenv('GLOBAL_VARIABLE=/var/www/html'));
+afterAll(fn () => putenv('GLOBAL_VARIABLE'));
 
 describe('Path::__construct()', function () {
 	test('Should throw an exception when the string is empty', function () {
@@ -335,7 +340,52 @@ describe('Path::join()', function () {
 	});
 });
 
-describe('Path::expand()', function () {})->skip();
+describe('Path::expand()', function () {
+	test('Should return only normalized path itself when there is no variables to expand', function () {
+		expect(Path::expand('vendor/.\\\\bin/')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+	});
+	test('Should expand windows-like variable when the name has the same casing as the real variable', function () {
+		expect(Path::expand('%GLOBAL_VARIABLE%')->path)->toBe(getenv('GLOBAL_VARIABLE', true));
+		expect(Path::expand('%GLOBAL_VARIABLE%/Users')->path)->toBe(getenv('GLOBAL_VARIABLE', true) . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand windows-like variable when the name has different casing than the real variable', function () {
+		expect(Path::expand('%GLOBAL_VARIABLE%')->path)->toBe(getenv('GLOBAL_VARIABLE', true));
+		expect(Path::expand('%GLOBAL_VARIABLE%/Users')->path)->toBe(getenv('GLOBAL_VARIABLE', true) . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand windows-like variable when the name has the same casing as the overriden variable', function () {
+		expect(Path::expand('%varname%', ['varname' => 'C:\\Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::expand('%varname%/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand windows-like variable when the name has different casing than the overriden variable', function () {
+		expect(Path::expand('%VARNAME%', ['varname' => 'C:\\Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::expand('%VARNAME%/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand windows-like variable to an empty string when there is no a variable with such a name', function () {
+		expect(Path::expand('%VARNAME%')->path)->toBe('.');
+		expect(Path::expand('%VARNAME%/Users')->path)->toBe(DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand unix-like variable when the name has the same casing as the real variable', function () {
+		expect(Path::expand('$GLOBAL_VARIABLE')->path)->toBe(getenv('GLOBAL_VARIABLE', true));
+		expect(Path::expand('$GLOBAL_VARIABLE/Users')->path)->toBe(getenv('GLOBAL_VARIABLE', true) . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand unix-like variable to an empty string when the name has different casing than the real variable', function () {
+		expect(Path::expand('$global_variable')->path)->toBe('.');
+		expect(Path::expand('$global_variable/Users')->path)->toBe(DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand unix-like variable when the name has the same casing as the overriden variable', function () {
+		expect(Path::expand('$varname', ['varname' => 'C:\\Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::expand('$varname/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand unix-like variable to an empty string when the name has different casing than the overriden variable', function () {
+		expect(Path::expand('$VARNAME', ['varname' => 'C:\\Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::expand('$VARNAME/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand unix-like variable to an empty string when there is no a variable with such a name', function () {
+		expect(Path::expand('$VARNAME')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::expand('$VARNAME/Users')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+	});
+	test('Should expand ~ Unix symbol', function () {})->skip();
+});
 
 describe('Path::normalize()', function () {
 	test('Should return a current directory when the string is empty', function () {
@@ -428,5 +478,4 @@ describe('Path::normalize()', function () {
 		$p2 = Path::normalize($p1);
 		expect($p2->path)->toBe($p1->path);
 	});
-	test('Complex examples', function () {})->skip();
 });
