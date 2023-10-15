@@ -237,7 +237,7 @@ class Path implements Stringable, Equalable {
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute())
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
-		return self::join($base, $this);
+		return self::join($base->path, $this->path);
 	}
 
 	/**
