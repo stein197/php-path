@@ -321,6 +321,12 @@ describe('Path::join()', function () {
 		expect(Path::join('vendor/bin', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 		expect(Path::join('vendor/bin', '.', '.')->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 	});
+	test('Should return the first path when the first one is root and the next ones are current directories', function () {
+		expect(Path::join('/', '.')->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::join('\\', '.', '.')->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::join('C:', '.')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::join('C:/', '.', '.')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+	});
 	test('Should return a parent of the first path when the next ones are parent directories', function () {
 		expect(Path::join('vendor/bin', '..')->path)->toBe('vendor');
 		expect(Path::join('C:\\Windows/Users/Admin', '..', '..')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
