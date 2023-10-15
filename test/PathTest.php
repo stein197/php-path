@@ -392,6 +392,9 @@ describe('Path::expand()', function () {
 		expect(Path::expand('$VARNAME')->path)->toBe('.');
 		expect(Path::expand('$VARNAME/Users')->path)->toBe(DIRECTORY_SEPARATOR . 'Users');
 	});
+	test('Should expand multiple variables', function () {
+		expect(Path::expand('%global_variable%/$varname', ['varname' => 'admin'])->path)->toBe(getenv('global_variable') . DIRECTORY_SEPARATOR . 'admin');
+	});
 	test('Should expand ~ Unix symbol', function () {})->skip();
 });
 
