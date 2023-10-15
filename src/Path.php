@@ -53,8 +53,8 @@ use const DIRECTORY_SEPARATOR;
  * 
  * All methods that return a path, always return a normalized one.
  */
-// TODO: Implement methods: getDepth(), getElement(), getSubpath(), startsWith(), endsWith()
-// TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable, 
+// TODO: Implement methods: getDepth(), getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
+// TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
 class Path implements Stringable, Equalable {
 
 	/**
