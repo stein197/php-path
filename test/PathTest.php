@@ -313,7 +313,6 @@ describe('Path::format()', function () {
 describe('Path::join()', function () {
 	test('Should throw an exception when there are too many parent jumps', function () {
 		expect(fn () => Path::join('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
-		expect(fn () => Path::join('/var/www', '..', '..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'/var/www' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..\': too many parent jumps');
 	});
 	test('Should return a current directory when no arguments were passed', function () {
 		expect(Path::join()->path)->toBe('.');

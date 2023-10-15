@@ -319,6 +319,7 @@ class Path implements Stringable, Equalable {
 	 * Path::expand('~/downloads');             // Path('/home/admin/downloads')
 	 * ```
 	 */
+	// TODO: Expand "~" symbol
 	public static function expand(string | self $path, ?array $env = null): self {
 		return self::normalize(preg_replace_callback(self::REGEX_ENV_VAR, function (array $matches) use ($env): string {
 			[$match] = $matches;
