@@ -339,7 +339,7 @@ class Path implements Stringable, Equalable {
 							return $value;
 					return '';
 				case PathType::Unix:
-					return @$env[$name] ?? '';
+					return isset($env[$name]) ? $env[$name] : '';
 			}
 			return '';
 		}, $path));
