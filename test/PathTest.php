@@ -10,7 +10,7 @@ use function putenv;
 use function test;
 use const DIRECTORY_SEPARATOR;
 
-beforeAll(fn () => putenv('GLOBAL_VARIABLE=/var/www/html'));
+beforeAll(fn () => putenv('GLOBAL_VARIABLE=' . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html'));
 afterAll(fn () => putenv('GLOBAL_VARIABLE'));
 
 describe('Path::__construct()', function () {
