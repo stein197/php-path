@@ -193,8 +193,8 @@ describe('Path::getParent()', function () {
 		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
 		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 		expect((new Path('C:\\Windows/./././../Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect((new Path('/var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
-		expect((new Path('/var/././../var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html');
+		expect((new Path('/var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
+		expect((new Path('/var/././../var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
 	});
 	test('Should return correct result when the path is relative', function () {
 		expect((new Path('vendor/bin/phpunit'))->getParent()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
