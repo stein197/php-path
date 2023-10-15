@@ -16,6 +16,7 @@ use function preg_match;
 use function preg_replace;
 use function preg_replace_callback;
 use function preg_split;
+use function sizeof;
 use function sprintf;
 use function str_starts_with;
 use function strpos;
@@ -195,7 +196,10 @@ class Path implements Stringable, Equalable {
 	 */
 	public function getParent(): ?self {
 		$normalized = self::normalize($this);
-		return $normalized->isRoot() ? null : self::normalize(preg_replace('/[^\\\\\/]+$/', '', $normalized->path));
+		if ($normalized->isRoot())
+			return null;
+		$hasParent = sizeof(self::split($normalized->path)) > 1;
+		return $hasParent ? self::normalize(preg_replace('/[^\\\\\/]+$/', '', $normalized->path)) : null;
 	}
 
 	/**
