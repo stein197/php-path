@@ -364,7 +364,7 @@ class Path implements Stringable, Equalable {
 	public static function normalize(string | self $path): self {
 		$result = [];
 		$parts = self::split($path instanceof self ? $path->path : $path);
-		foreach ($parts as $part) {
+		foreach ($parts as $i => $part) {
 			if ($part === self::DIR_CURRENT) {
 				continue;
 			} elseif ($part === self::DIR_PARENT) {
@@ -372,19 +372,20 @@ class Path implements Stringable, Equalable {
 				if ($isOut)
 					throw new InvalidArgumentException("Cannot normalize the path '{$path}': too many parent jumps");
 				array_pop($result);
+			} elseif (!$i && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $part)) {
+				$result[] = strtoupper($part);
 			} else {
 				$result[] = $part;
 			}
 		}
-		if (isset($result[0]) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result[0]))
-			$result[0] = strtoupper($result[0]);
 		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
 		if (!preg_match(self::REGEX_ROOT, $result))
 			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
 		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result))
 			$result = rtrim($result, '\\/') . self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
+		$isRoot = preg_match(self::REGEX_PATH_ABSOLUTE_NIX, $path) || preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $path);
 		if (!$result)
-			$result = '.';
+			$result = $isRoot ? self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR] : '.';
 		return new self($result);
 	}
 
