@@ -243,8 +243,8 @@ describe('Path::toAbsolute()', function () {
 		expect(fn () => (new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'C:\\Windows\\' . DIRECTORY_SEPARATOR . 'vendor/../../..\': too many parent jumps');
 	});
 	test('Should return the path itself when it is already absolute', function () {
-		expect((new Path('/usr/bin'))->toAbsolute('C:\\Windows')->path)->toBe('/usr/bin');
-		expect((new Path('C:\\Windows'))->toAbsolute('/usr/bin')->path)->toBe('C:\\Windows');
+		expect((new Path('/usr/bin'))->toAbsolute('C:\\Windows')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect((new Path('C:\\Windows'))->toAbsolute('/usr/bin')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 	});
 	test('Should return correct result when the base is root', function () {
 		expect((new Path('vendor/autoload.php'))->toAbsolute('C:')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
