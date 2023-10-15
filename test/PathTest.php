@@ -26,7 +26,7 @@ describe('Path::__construct()', function () {
 describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
 		expect((string) new Path('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
-		expect((string) new Path('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'public');
+		expect((string) new Path('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'public');
 	});
 	test('Should return the initial path if the normalization cannot be performed', function () {
 		expect((string) new Path('..'))->toBe('..');
@@ -175,6 +175,9 @@ describe('Path::getParent()', function () {
 		expect((new Path('c:\\\\'))->getParent())->toBeNull();
 		expect((new Path('c:\\\\Windows/..'))->getParent())->toBeNull();
 		expect((new Path('/var/www/..\\..'))->getParent())->toBeNull();
+	});
+	test('Should return null when the path is a current directory', function () {
+		expect((new Path('.'))->getParent())->toBeNull();
 	});
 	test('Should return null when the path is relative and single', function () {
 		expect((new Path('vendor'))->getParent())->toBeNull();
@@ -377,12 +380,12 @@ describe('Path::expand()', function () {
 		expect(Path::expand('$varname/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
 	});
 	test('Should expand unix-like variable to an empty string when the name has different casing than the overriden variable', function () {
-		expect(Path::expand('$VARNAME', ['varname' => 'C:\\Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect(Path::expand('$VARNAME/Users', ['varname' => 'C:/Windows'])->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+		expect(Path::expand('$VARNAME', ['varname' => 'C:\\Windows'])->path)->toBe('.');
+		expect(Path::expand('$VARNAME/Users', ['varname' => 'C:/Windows'])->path)->toBe(DIRECTORY_SEPARATOR . 'Users');
 	});
 	test('Should expand unix-like variable to an empty string when there is no a variable with such a name', function () {
-		expect(Path::expand('$VARNAME')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect(Path::expand('$VARNAME/Users')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+		expect(Path::expand('$VARNAME')->path)->toBe('.');
+		expect(Path::expand('$VARNAME/Users')->path)->toBe(DIRECTORY_SEPARATOR . 'Users');
 	});
 	test('Should expand ~ Unix symbol', function () {})->skip();
 });

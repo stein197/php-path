@@ -183,17 +183,19 @@ class Path implements Stringable, Equalable {
 
 	/**
 	 * Get parent of the path. If the path is root then `null` is returned.
-	 * @return null|Path Parent path or `null` if the path is root.
+	 * @return null|Path Parent path or `null` if the path is root or if it's relative one getting a parent is not 
+	 *                   possible.
 	 * @throws InvalidArgumentException If normalization cannot be performed on the path.
 	 * ```php
 	 * // An example
 	 * (new Path('/usr/bin'))->getParent(); // Path('/usr')
 	 * (new Path('C:'))->getParent();       // null
+	 * (new Path('vendor'))->getParent();   // null
 	 * ```
 	 */
 	public function getParent(): ?self {
 		$normalized = self::normalize($this);
-		return $normalized->isRoot() ? null : new self(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->path));
+		return $normalized->isRoot() ? null : self::normalize(preg_replace('/[\\\\\/][^\\\\\/]+$/', '', $normalized->path));
 	}
 
 	/**
@@ -231,7 +233,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function toAbsolute(string | self $base): self {
 		if ($this->isAbsolute())
-			return $this;
+			return self::normalize($this);
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute())
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
@@ -253,7 +255,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function toRelative(string | self $base): self {
 		if ($this->isRelative())
-			return $this;
+			return self::normalize($this);
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute())
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");
@@ -322,20 +324,18 @@ class Path implements Stringable, Equalable {
 			[$match] = $matches;
 			$type = str_starts_with($match, '$') ? PathType::Unix : PathType::Windows;
 			$name = trim($match, '%$');
+			$env = array_merge(getenv(null, false), getenv(null, true), $env ?? []);
 			switch ($type) {
 				case PathType::Windows:
 					$name = strtolower($name);
-					if ($env)
-						foreach ($env as $varName => $value)
-							if ($name === strtolower($varName))
-								return $value;
-					break;
+					foreach ($env as $varName => $value)
+						if ($name === strtolower($varName))
+							return $value;
+					return '';
 				case PathType::Unix:
-					if ($env && isset($env[$name]))
-						return $env[$name];
-					break;
+					return @$env[$name] ?? '';
 			}
-			return getenv($name, true) ?: getenv($name, false) ?: '';
+			return '';
 		}, $path));
 	}
 
