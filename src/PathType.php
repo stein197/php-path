@@ -7,9 +7,9 @@ namespace Stein197\FileSystem;
 enum PathType {
 
 	/**
-	 * Windows-like path (like 'C:\\Windows', 'C:/', 'C:') that starts with drive letter.
+	 * DOS-like path (like 'C:\\Windows', 'C:/', 'C:') that starts with drive letter.
 	 */
-	case Windows;
+	case DOS;
 
 	/**
 	 * Unix-like path (like '/usr', '\\', '/') that starts with a slash.

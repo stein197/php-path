@@ -205,11 +205,11 @@ class Path implements Stringable, Equalable {
 	}
 
 	/**
-	 * Get type of a path. It can be Windows, Unix or none. Type of the path is known only if it's an absolute path.
+	 * Get type of a path. It can be DOS, Unix or none. Type of the path is known only if it's an absolute path.
 	 * @return null|PathType Path type or `null` if the path is relative.
 	 * ```php
 	 * // An example
-	 * (new Path('C:/Windows'))->getType(); // PathType::Windows
+	 * (new Path('C:/Windows'))->getType(); // PathType::DOS
 	 * (new Path('/root'))->getType();      // PathType::Unix
 	 * (new Path('file.txt'))->getType();   // null
 	 * ```
@@ -218,7 +218,7 @@ class Path implements Stringable, Equalable {
 		$isWinAbsolute = !!preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $this->path);
 		$isNixAbsolute = !!preg_match(self::REGEX_PATH_ABSOLUTE_NIX, $this->path);
 		return match (true) {
-			$isWinAbsolute => PathType::Windows,
+			$isWinAbsolute => PathType::DOS,
 			$isNixAbsolute => PathType::Unix,
 			default => null
 		};
@@ -330,11 +330,11 @@ class Path implements Stringable, Equalable {
 	public static function expand(string | self $path, ?array $env = null): self {
 		return self::normalize(preg_replace_callback(self::REGEX_ENV_VAR, function (array $matches) use ($env): string {
 			[$match] = $matches;
-			$type = str_starts_with($match, '$') ? PathType::Unix : PathType::Windows;
+			$type = str_starts_with($match, '$') ? PathType::Unix : PathType::DOS;
 			$name = trim($match, '%$');
 			$env = array_merge(getenv(null, false), getenv(null, true), $env ?? []);
 			switch ($type) {
-				case PathType::Windows:
+				case PathType::DOS:
 					$name = strtolower($name);
 					foreach ($env as $varName => $value)
 						if ($name === strtolower($varName))

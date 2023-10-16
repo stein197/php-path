@@ -204,14 +204,14 @@ describe('Path::getParent()', function () {
 
 describe('Path::getType()', function () {
 	test('Windows: normalized path', function () {
-		expect((new Path('C:'))->getType())->toBe(PathType::Windows);
-		expect((new Path('c:'))->getType())->toBe(PathType::Windows);
-		expect((new Path('c:\\'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:/'))->getType())->toBe(PathType::Windows);
+		expect((new Path('C:'))->getType())->toBe(PathType::DOS);
+		expect((new Path('c:'))->getType())->toBe(PathType::DOS);
+		expect((new Path('c:\\'))->getType())->toBe(PathType::DOS);
+		expect((new Path('C:/'))->getType())->toBe(PathType::DOS);
 	});
 	test('Windows: denormalized path', function () {
-		expect((new Path('c:/\\'))->getType())->toBe(PathType::Windows);
-		expect((new Path('C:/\\'))->getType())->toBe(PathType::Windows);
+		expect((new Path('c:/\\'))->getType())->toBe(PathType::DOS);
+		expect((new Path('C:/\\'))->getType())->toBe(PathType::DOS);
 	});
 	test('Unix: normalized path', function () {
 		expect((new Path('/'))->getType())->toBe(PathType::Unix);
