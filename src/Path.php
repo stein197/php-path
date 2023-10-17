@@ -365,6 +365,7 @@ class Path implements Stringable, Equalable {
 	 * Path::normalize('C:\\Windows\\..\\..');    // an exception
 	 * ```
 	 */
+	// TODO: Clone a passed object instead of normalizing it again
 	public static function normalize(string | self $path): self {
 		$result = [];
 		$parts = self::split($path instanceof self ? $path->path : $path);
@@ -376,10 +377,8 @@ class Path implements Stringable, Equalable {
 				if ($isOut)
 					throw new InvalidArgumentException("Cannot normalize the path '{$path}': too many parent jumps");
 				array_pop($result);
-			} elseif (!$i && preg_match(self::REGEX_ABS_DOS, $part)) {
-				$result[] = strtoupper($part);
 			} else {
-				$result[] = $part;
+				$result[] = !$i && preg_match(self::REGEX_ABS_DOS, $part) ? strtoupper($part) : $part;
 			}
 		}
 		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
