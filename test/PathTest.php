@@ -173,8 +173,9 @@ describe('Path->isRelative', function () {
 });
 
 describe('Path::__construct()', function () {
-	test('Should throw an exception when the string is empty', function () {
-		expect(fn () => new Path(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
+	test('Should set the path to a current directory when an empty string is passed', function () {
+		$p = new Path('.');
+		expect($p->path)->toBe('.');
 	});
 	test('Should instantiate an object when the string is not empty', function () {
 		$p = new Path('public/index.html');

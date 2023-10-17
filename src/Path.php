@@ -172,12 +172,11 @@ class Path implements Stringable, Equalable {
 	/**
 	 * Create a new path object.
 	 * @param string|self $data A string or another path object.
-	 * @throws InvalidArgumentException When the string is empty.
 	 */
 	public function __construct(string | self $data) {
 		$this->path = strval($data);
 		if (!$this->path)
-			throw new InvalidArgumentException('Cannot instantiate a path object: the path string is empty');
+			$this->path = '.';
 		$this->isDOS = !!preg_match(self::REGEX_ABS_DOS, $this->path);
 		$this->isUnix = !!preg_match(self::REGEX_ABS_UNIX, $this->path);
 		$this->isRoot = !!preg_match(self::REGEX_ROOT, $this->path);
