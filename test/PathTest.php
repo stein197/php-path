@@ -1,4 +1,15 @@
 <?php
+/*
+The entire API should be tested against these cases:
+- Root path (DOS-like and Unix-like, normalized and denormalized)
+- Absolute path (DOS-like and Unix-like, normalized and denormalized)
+- Relative path (DOS-like and Unix-like, normalized and denormalized)
+- Relative path with only a single element
+- Current directory
+- Parent directory
+- Path starting with a current directory
+- Path starting with a parent directory
+*/
 namespace Stein197\FileSystem;
 
 use InvalidArgumentException;
@@ -66,6 +77,101 @@ describe('Path->isUnix', function () {
 	});
 });
 
+describe('Path->isRoot', function () {
+	test('Should be true when it is drive', function () {
+		expect((new Path('C:'))->isRoot)->toBeTrue();
+		expect((new Path('c:'))->isRoot)->toBeTrue();
+		expect((new Path('C:\\'))->isRoot)->toBeTrue();
+		expect((new Path('C:/'))->isRoot)->toBeTrue();
+	});
+	test('Should be true when it is slash', function () {
+		expect((new Path('/'))->isRoot)->toBeTrue();
+		expect((new Path('\\'))->isRoot)->toBeTrue();
+		expect((new Path('\\/'))->isRoot)->toBeTrue();
+		expect((new Path('/\\'))->isRoot)->toBeTrue();
+	});
+	test('Should be false when it is an absolute path and is not a root', function () {
+		expect((new Path('C:/Windows'))->isRoot)->toBeFalse();
+		expect((new Path('/var'))->isRoot)->toBeFalse();
+	});
+	test('Should be false when it is a relative path', function () {
+		expect((new Path('file.txt'))->isRoot)->toBeFalse();
+		expect((new Path('vendor/autoload.php'))->isRoot)->toBeFalse();
+	});
+});
+
+describe('Path->isAbsolute', function () {
+	test('Should be true when the path is root', function () {
+		expect((new Path('C:'))->isAbsolute)->toBeTrue();
+		expect((new Path('C:/'))->isAbsolute)->toBeTrue();
+		expect((new Path('C:\\/'))->isAbsolute)->toBeTrue();
+		expect((new Path('/'))->isAbsolute)->toBeTrue();
+		expect((new Path('\\/'))->isAbsolute)->toBeTrue();
+	});
+	test('Should be true when the path is absolute and normalized', function () {
+		expect((new Path('c:\\Windows\\Users'))->isAbsolute)->toBeTrue();
+		expect((new Path('/usr/www/root'))->isAbsolute)->toBeTrue();
+	});
+	test('Should be true when the path is absolute and denormalized', function () {
+		expect((new Path('c:\\\\Windows\\Users\\'))->isAbsolute)->toBeTrue();
+		expect((new Path('/usr////www/root///'))->isAbsolute)->toBeTrue();
+	});
+	test('Should be false when the path is relative and normalized', function () {
+		expect((new Path('vendor/autoload.php'))->isAbsolute)->toBeFalse();
+		expect((new Path('users\\Admin'))->isAbsolute)->toBeFalse();
+	});
+	test('Should be false when the path is relative and denormalized', function () {
+		expect((new Path('vendor///autoload.php'))->isAbsolute)->toBeFalse();
+		expect((new Path('users\\\\Admin\\'))->isAbsolute)->toBeFalse();
+	});
+	test('Should be false for current directory', function () {
+		expect((new Path('.'))->isAbsolute)->toBeFalse();
+	});
+	test('Should be false for parent directory', function () {
+		expect((new Path('..'))->isAbsolute)->toBeFalse();
+	});
+	test('Should be false when the path starts with a current directory', function () {
+		expect((new Path('./vendor/autoload.php'))->isAbsolute)->toBeFalse();
+		expect((new Path('.\users\\Admin'))->isAbsolute)->toBeFalse();
+	});
+	test('Should be false then the path starts with a parent directory', function () {
+		expect((new Path('..\\vendor///autoload.php'))->isAbsolute)->toBeFalse();
+		expect((new Path('../users\\\\Admin\\'))->isAbsolute)->toBeFalse();
+	});
+});
+
+describe('Path->isRelative', function () {
+	test('Should be false when the path is root', function () {
+		expect((new Path('C:'))->isRelative)->toBeFalse();
+		expect((new Path('c:/'))->isRelative)->toBeFalse();
+		expect((new Path('c:\\'))->isRelative)->toBeFalse();
+		expect((new Path('/'))->isRelative)->toBeFalse();
+		expect((new Path('\\'))->isRelative)->toBeFalse();
+	});
+	test('Should be false when the path is absolute', function () {
+		expect((new Path('C:\\Windows\\'))->isRelative)->toBeFalse();
+		expect((new Path('c:/users/'))->isRelative)->toBeFalse();
+		expect((new Path('/usr/bin'))->isRelative)->toBeFalse();
+	});
+	test('Should be true when the path is relative', function () {
+		expect((new Path('file.txt'))->isRelative)->toBeTrue();
+		expect((new Path('vendor/autoload.php'))->isRelative)->toBeTrue();
+		expect((new Path('vendor/phpunit\\\\phpunit/'))->isRelative)->toBeTrue();
+	});
+	test('Should be true when the path is a current directory', function () {
+		expect((new Path('.'))->isRelative)->toBeTrue();
+	});
+	test('Should be true when the path is a parent directory', function () {
+		expect((new Path('..'))->isRelative)->toBeTrue();
+	});
+	test('Should be true when the path starts with a current directory', function () {
+		expect((new Path('./vendor'))->isRelative)->toBeTrue();
+	});
+	test('Should be true when the path starts with a parent directory', function () {
+		expect((new Path('..\\users'))->isRelative)->toBeTrue();
+	});
+});
+
 describe('Path::__construct()', function () {
 	test('Should throw an exception when the string is empty', function () {
 		expect(fn () => new Path(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
@@ -110,112 +216,6 @@ describe('Path::equals()', function () {
 	});
 	test('Should always return false for null', function () {
 		expect((new Path('.'))->equals(null))->toBeFalse();
-	});
-});
-
-describe('Path::isAbsolute()', function () {
-	test('Should return true for normalized root paths', function () {
-		expect((new Path('C:'))->isAbsolute())->toBeTrue();
-		expect((new Path('C:/'))->isAbsolute())->toBeTrue();
-		expect((new Path('C:\\'))->isAbsolute())->toBeTrue();
-		expect((new Path('/'))->isAbsolute())->toBeTrue();
-		expect((new Path('\\'))->isAbsolute())->toBeTrue();
-	});
-	test('Should return true for denormalized root paths', function () {
-		expect((new Path('C://'))->isAbsolute())->toBeTrue();
-		expect((new Path('C:\\/'))->isAbsolute())->toBeTrue();
-		expect((new Path('/\\'))->isAbsolute())->toBeTrue();
-		expect((new Path('\\/'))->isAbsolute())->toBeTrue();
-	});
-	test('Should return true for normalized absolute paths', function () {
-		expect((new Path('c:\\Windows\\Users'))->isAbsolute())->toBeTrue();
-		expect((new Path('/usr/www/root'))->isAbsolute())->toBeTrue();
-	});
-	test('Should return true for denormalized absolute paths', function () {
-		expect((new Path('c:\\\\Windows\\Users\\'))->isAbsolute())->toBeTrue();
-		expect((new Path('/usr////www/root///'))->isAbsolute())->toBeTrue();
-	});
-	test('Should return false for normalized relative paths', function () {
-		expect((new Path('vendor/autoload.php'))->isAbsolute())->toBeFalse();
-		expect((new Path('users\\Admin'))->isAbsolute())->toBeFalse();
-	});
-	test('Should return false for denormalized relative paths', function () {
-		expect((new Path('vendor///autoload.php'))->isAbsolute())->toBeFalse();
-		expect((new Path('users\\\\Admin\\'))->isAbsolute())->toBeFalse();
-	});
-	test('Should return false for current directory', function () {
-		expect((new Path('.'))->isAbsolute())->toBeFalse();
-	});
-	test('Should return false for parent directory', function () {
-		expect((new Path('..'))->isAbsolute())->toBeFalse();
-	});
-	test('Should return for normalized paths that start with a current directory', function () {
-		expect((new Path('./vendor/autoload.php'))->isAbsolute())->toBeFalse();
-		expect((new Path('.\users\\Admin'))->isAbsolute())->toBeFalse();
-	});
-	test('Should return for normalized paths that start with a parent directory', function () {
-		expect((new Path('..\\vendor///autoload.php'))->isAbsolute())->toBeFalse();
-		expect((new Path('../users\\\\Admin\\'))->isAbsolute())->toBeFalse();
-	});
-});
-
-describe('Path::isRelative()', function () {
-	test('Should return false for root paths', function () {
-		expect((new Path('C:'))->isRelative())->toBeFalse();
-		expect((new Path('c:/'))->isRelative())->toBeFalse();
-		expect((new Path('c:\\'))->isRelative())->toBeFalse();
-		expect((new Path('/'))->isRelative())->toBeFalse();
-		expect((new Path('\\'))->isRelative())->toBeFalse();
-	});
-	test('Should return false for absolute paths', function () {
-		expect((new Path('C:\\Windows\\'))->isRelative())->toBeFalse();
-		expect((new Path('c:/users/'))->isRelative())->toBeFalse();
-		expect((new Path('/usr/bin'))->isRelative())->toBeFalse();
-	});
-	test('Should return true for relative paths', function () {
-		expect((new Path('file.txt'))->isRelative())->toBeTrue();
-		expect((new Path('vendor/autoload.php'))->isRelative())->toBeTrue();
-		expect((new Path('vendor/phpunit\\\\phpunit/'))->isRelative())->toBeTrue();
-	});
-	test('Should return true for current directory', function () {
-		expect((new Path('.'))->isRelative())->toBeTrue();
-	});
-	test('Should return true for parent directory', function () {
-		expect((new Path('..'))->isRelative())->toBeTrue();
-	});
-	test('Should return true for paths that start with a current directory', function () {
-		expect((new Path('./vendor'))->isRelative())->toBeTrue();
-	});
-	test('Should return true for paths that start with a parent directory', function () {
-		expect((new Path('..\\users'))->isRelative())->toBeTrue();
-	});
-});
-
-describe('Path::isRoot()', function () {
-	test('Windows: normalized path', function () {
-		expect((new Path('C:'))->isRoot())->toBeTrue();
-		expect((new Path('c:'))->isRoot())->toBeTrue();
-		expect((new Path('C:\\'))->isRoot())->toBeTrue();
-		expect((new Path('C:/'))->isRoot())->toBeTrue();
-	});
-	test('Windows: denormalized path', function () {
-		expect((new Path('C:\\//'))->isRoot())->toBeTrue();
-		expect((new Path('C:/\\'))->isRoot())->toBeTrue();
-	});
-	test('Unix: normalized path', function () {
-		expect((new Path('/'))->isRoot())->toBeTrue();
-		expect((new Path('\\'))->isRoot())->toBeTrue();
-	});
-	test('Unix: denormalized path', function () {
-		expect((new Path('\\/'))->isRoot())->toBeTrue();
-		expect((new Path('/\\'))->isRoot())->toBeTrue();
-	});
-	test('none', function () {
-		expect((new Path('C:\\Windows'))->isRoot())->toBeFalse();
-		expect((new Path('c:/Windows'))->isRoot())->toBeFalse();
-		expect((new Path('/usr/bin'))->isRoot())->toBeFalse();
-		expect((new Path('\\usr/bin'))->isRoot())->toBeFalse();
-		expect((new Path('file.txt'))->isRoot())->toBeFalse();
 	});
 });
 

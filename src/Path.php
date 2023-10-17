@@ -55,6 +55,8 @@ use const DIRECTORY_SEPARATOR;
  */
 // TODO: Implement methods: getDepth(), getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
 // TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
+// TODO: Make the path immutable (all methods must return a new instance)
+// TODO: Delete exception in case if the amount of jumps exceeds limit
 class Path implements Stringable, Equalable {
 
 	/**
@@ -117,6 +119,43 @@ class Path implements Stringable, Equalable {
 	public readonly bool $isUnix;
 
 	/**
+	 * `true` if the path is root. Root paths are a special case of absolute ones since they also start with a slash or
+	 * a drive letter, but they denote only a root folder (like '/', 'C:\').
+	 * ```php
+	 * (new Path('C:\\'))->isRoot;     // true
+	 * (new Path('/'))->isRoot;        // true
+	 * (new Path('/usr/bin'))->isRoot; // false
+	 * ```
+	 * @var bool
+	 */
+	public readonly bool $isRoot;
+
+	/**
+	 * `true` if the path is absolute. Absolute paths are those that start with slashes ('/usr', '\\root') or a drive
+	 * letter ('C:', 'C:/', 'C:\\'). It's the opposite of `isRelative`.
+	 * ```php
+	 * // An example
+	 * (new Path('C:\\Windows'))->isAbsolute;         // true
+	 * (new Path('/usr/bin'))->isAbsolute;            // true
+	 * (new Path('vendor/autoload.php'))->isAbsolute; // false
+	 * ```
+	 * @var bool
+	 */
+	public readonly bool $isAbsolute;
+
+	/**
+	 * `true` if the path is relative. Relative paths are those that don't start with slashes or drive letter
+	 * ('node_modules', 'public/index.php'). It's the opposite of `isAbsolute`.
+	 * ```php
+	 * (new Path('C:\\Windows'))->isRelative;         // false
+	 * (new Path('/usr/bin'))->isRelative;            // false
+	 * (new Path('vendor/autoload.php'))->isRelative; // true
+	 * ```
+	 * @var bool
+	 */
+	public readonly bool $isRelative;
+
+	/**
 	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
 	 * constructor, then it holds what was passed to the constructor. Other methods that return `Path` instance will
 	 * always have normalized `$path` property.
@@ -141,6 +180,9 @@ class Path implements Stringable, Equalable {
 			throw new InvalidArgumentException('Cannot instantiate a path object: the path string is empty');
 		$this->isDOS = !!preg_match(self::REGEX_ABS_DOS, $this->path);
 		$this->isUnix = !!preg_match(self::REGEX_ABS_UNIX, $this->path);
+		$this->isRoot = !!preg_match(self::REGEX_ROOT, $this->path);
+		$this->isAbsolute = $this->isDOS || $this->isUnix;
+		$this->isRelative = !$this->isAbsolute;
 	}
 
 	public function __toString(): string {
@@ -166,51 +208,6 @@ class Path implements Stringable, Equalable {
 	}
 
 	/**
-	 * Check if the path is absolute. Absolute paths are those that start with slashes ('/usr', '\\root') or a drive
-	 * letter ('C:', 'C:/', 'C:\\'). It's the opposite of {@link \Stein197\Path::isRelative()}
-	 * @return bool `true` if the path is absolute.
-	 * ```php
-	 * // An example
-	 * (new Path('C:\\Windows'))->isAbsolute();         // true
-	 * (new Path('/usr/bin'))->isAbsolute();            // true
-	 * (new Path('vendor/autoload.php'))->isAbsolute(); // false
-	 * ```
-	 */
-	public function isAbsolute(): bool {
-		return $this->isDOS || $this->isUnix;
-	}
-
-	/**
-	 * Check if the path is relative. Relative paths are those that don't start with slashes or drive letter
-	 * ('node_modules', 'public/index.php'). It's the opposite of {@link \Stein197\Path::isAbsolute()}
-	 * @return bool `true` if the path is relative.
-	 * ```php
-	 * // An example
-	 * (new Path('C:\\Windows'))->isRelative();         // false
-	 * (new Path('/usr/bin'))->isRelative();            // false
-	 * (new Path('vendor/autoload.php'))->isRelative(); // true
-	 * ```
-	 */
-	public function isRelative(): bool {
-		return !$this->isAbsolute();
-	}
-
-	/**
-	 * Check if the path is root. Root paths are a special case of absolute ones since they also start with a slash or
-	 * a drive letter, but they denote only a root folder (like '/', 'C:\').
-	 * @return bool `true` if the path is root.
-	 * ```php
-	 * // An example
-	 * (new Path('C:\\'))->isRoot();     // true
-	 * (new Path('/'))->isRoot();        // true
-	 * (new Path('/usr/bin'))->isRoot(); // false
-	 * ```
-	 */
-	public function isRoot(): bool {
-		return !!preg_match(self::REGEX_ROOT, $this->path);
-	}
-
-	/**
 	 * Get parent of the path. If the path is root then `null` is returned.
 	 * @return null|Path Parent path or `null` if the path is root or if it's relative one getting a parent is not 
 	 *                   possible.
@@ -224,7 +221,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function getParent(): ?self {
 		$normalized = self::normalize($this);
-		if ($normalized->isRoot())
+		if ($normalized->isRoot)
 			return null;
 		$hasParent = sizeof(self::split($normalized->path)) > 1;
 		return $hasParent ? self::normalize(preg_replace('/[^\\\\\/]+$/', '', $normalized->path)) : null;
@@ -244,10 +241,10 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function toAbsolute(string | self $base): self {
-		if ($this->isAbsolute())
+		if ($this->isAbsolute)
 			return self::normalize($this);
 		$base = $base instanceof self ? $base : new self($base);
-		if (!$base->isAbsolute())
+		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
 		return self::join($base->path, $this->path);
 	}
@@ -266,10 +263,10 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function toRelative(string | self $base): self {
-		if ($this->isRelative())
+		if ($this->isRelative)
 			return self::normalize($this);
 		$base = $base instanceof self ? $base : new self($base);
-		if (!$base->isAbsolute())
+		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");
 		$thisFormat = $this->format();
 		$baseFormat = $base->format();
