@@ -13,6 +13,59 @@ use const DIRECTORY_SEPARATOR;
 beforeAll(fn () => putenv('GLOBAL_VARIABLE=' . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html'));
 afterAll(fn () => putenv('GLOBAL_VARIABLE'));
 
+describe('Path->isDOS', function () {
+	test('Should be true when it is a DOS-like path and it is normalized', function () {
+		expect((new Path('C:'))->isDOS)->toBeTrue();
+		expect((new Path('c:'))->isDOS)->toBeTrue();
+		expect((new Path('c:\\Windows'))->isDOS)->toBeTrue();
+		expect((new Path('C:/Windows'))->isDOS)->toBeTrue();
+	});
+	test('Should be true when it is a DOS-like path and it is denormalized', function () {
+		expect((new Path('c:/\\'))->isDOS)->toBeTrue();
+		expect((new Path('C:/\\Windows'))->isDOS)->toBeTrue();
+	});
+	test('Should be false when it is a Unix-like path and it is normalized', function () {
+		expect((new Path('/'))->isDOS)->toBeFalse();
+		expect((new Path('/var'))->isDOS)->toBeFalse();
+	});
+	test('Should be false when it is a Unix-like path and it is denormalized', function () {
+		expect((new Path('\\/.//var'))->isDOS)->toBeFalse();
+	});
+	test('Should be false when it is a relative path', function () {
+		expect((new Path('file.txt'))->isDOS)->toBeFalse();
+		expect((new Path('vendor/autoload.php'))->isDOS)->toBeFalse();
+	});
+});
+
+describe('Path->isUnix', function () {
+	test('Should be true when it is a Unix-like path and it is normalized', function () {
+		expect((new Path('/'))->isUnix)->toBeTrue();
+		expect((new Path('\\'))->isUnix)->toBeTrue();
+		expect((new Path('/usr'))->isUnix)->toBeTrue();
+		expect((new Path('\\usr/bin'))->isUnix)->toBeTrue();
+	});
+	test('Should return true when it is a Unix-like path and it is normalized', function () {
+		expect((new Path('/\\'))->isUnix)->toBeTrue();
+		expect((new Path('/\\'))->isUnix)->toBeTrue();
+		expect((new Path('/usr//'))->isUnix)->toBeTrue();
+		expect((new Path('\\usr\\/bin'))->isUnix)->toBeTrue();
+	});
+	test('Should be false when it is a DOS-like path and it is normalized', function () {
+		expect((new Path('C:'))->isUnix)->toBeFalse();
+		expect((new Path('c:'))->isUnix)->toBeFalse();
+		expect((new Path('c:\\Windows'))->isUnix)->toBeFalse();
+		expect((new Path('C:/Windows'))->isUnix)->toBeFalse();
+	});
+	test('Should be false when it is a DOS-like path and it is denormalized', function () {
+		expect((new Path('c:/\\'))->isUnix)->toBeFalse();
+		expect((new Path('C:/\\Windows'))->isUnix)->toBeFalse();
+	});
+	test('Should be false when it is relative path', function () {
+		expect((new Path('filename.txt'))->isUnix)->toBeFalse();
+		expect((new Path('.git/hooks'))->isUnix)->toBeFalse();
+	});
+});
+
 describe('Path::__construct()', function () {
 	test('Should throw an exception when the string is empty', function () {
 		expect(fn () => new Path(''))->toThrow(InvalidArgumentException::class, 'Cannot instantiate a path object: the path string is empty');
@@ -199,39 +252,6 @@ describe('Path::getParent()', function () {
 	test('Should return correct result when the path is relative', function () {
 		expect((new Path('vendor/bin/phpunit'))->getParent()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 		expect((new Path('Users\\Downloads\\./..\\Downloads///file.txt'))->getParent()->path)->toBe('Users' . DIRECTORY_SEPARATOR . 'Downloads');
-	});
-});
-
-describe('Path::getType()', function () {
-	test('Windows: normalized path', function () {
-		expect((new Path('C:'))->getType())->toBe(PathType::DOS);
-		expect((new Path('c:'))->getType())->toBe(PathType::DOS);
-		expect((new Path('c:\\'))->getType())->toBe(PathType::DOS);
-		expect((new Path('C:/'))->getType())->toBe(PathType::DOS);
-	});
-	test('Windows: denormalized path', function () {
-		expect((new Path('c:/\\'))->getType())->toBe(PathType::DOS);
-		expect((new Path('C:/\\'))->getType())->toBe(PathType::DOS);
-	});
-	test('Unix: normalized path', function () {
-		expect((new Path('/'))->getType())->toBe(PathType::Unix);
-		expect((new Path('\\'))->getType())->toBe(PathType::Unix);
-		expect((new Path('/usr'))->getType())->toBe(PathType::Unix);
-		expect((new Path('\\usr/bin'))->getType())->toBe(PathType::Unix);
-	});
-	test('Unix: denormalized path', function () {
-		expect((new Path('/\\'))->getType())->toBe(PathType::Unix);
-		expect((new Path('/\\'))->getType())->toBe(PathType::Unix);
-		expect((new Path('/usr//'))->getType())->toBe(PathType::Unix);
-		expect((new Path('\\usr\\/bin'))->getType())->toBe(PathType::Unix);
-	});
-	test('null: normalized path', function () {
-		expect((new Path('filename.txt'))->getType())->toBeNull();
-		expect((new Path('.git/hooks'))->getType())->toBeNull();
-	});
-	test('null: denormalized path', function () {
-		expect((new Path('filename.txt\\/'))->getType())->toBeNull();
-		expect((new Path('.git//\\hooks'))->getType())->toBeNull();
 	});
 });
 

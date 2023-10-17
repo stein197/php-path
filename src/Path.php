@@ -80,8 +80,8 @@ class Path implements Stringable, Equalable {
 	public const OPTKEY_TRAILING_SLASH = 'trailingSlash';
 
 	private const REGEX_SLASH = '/[\\\\\/]+/';
-	private const REGEX_PATH_ABSOLUTE_WIN = '/^(?:[a-z]:)[\\\\\/]?/i';
-	private const REGEX_PATH_ABSOLUTE_NIX = '/^[\\\\\/]/';
+	private const REGEX_ABS_DOS = '/^(?:[a-z]:)[\\\\\/]?/i';
+	private const REGEX_ABS_UNIX = '/^[\\\\\/]/';
 	private const REGEX_ROOT = '/^(?:[a-z]:)?[\\\\\/]*$/i';
 	private const REGEX_ENV_VAR = '/%.+?%|\$.+?(?=[\/\\\\$]|$)/';
 	private const DIR_CURRENT = '.';
@@ -91,6 +91,30 @@ class Path implements Stringable, Equalable {
 		self::OPTKEY_SEPARATOR => DIRECTORY_SEPARATOR,
 		self::OPTKEY_TRAILING_SLASH => false
 	];
+
+	/**
+	 * `true` if the path is DOS-like ('C:\\Windows' and so). It's known only if it's an absolute path, so it's always
+	 * false if the path is relative.
+	 * ```php
+	 * (new Path('C:/Windows'))->isDOS; // true
+	 * (new Path('/root'))->isDOS;      // false
+	 * (new Path('file.txt'))->isDOS;   // false
+	 * ```
+	 * @var bool
+	 */
+	public readonly bool $isDOS;
+
+	/**
+	 * `true` if the path is Unix-like ('/var' and so). It's known only if it's an absolute path, so it's always false
+	 * if the path is relative.
+	 * ```php
+	 * (new Path('C:/Windows'))->isUnix; // false
+	 * (new Path('/root'))->isUnix;      // true
+	 * (new Path('file.txt'))->isUnix;   // false
+	 * ```
+	 * @var bool
+	 */
+	public readonly bool $isUnix;
 
 	/**
 	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
@@ -115,6 +139,8 @@ class Path implements Stringable, Equalable {
 		$this->path = strval($data);
 		if (!$this->path)
 			throw new InvalidArgumentException('Cannot instantiate a path object: the path string is empty');
+		$this->isDOS = !!preg_match(self::REGEX_ABS_DOS, $this->path);
+		$this->isUnix = !!preg_match(self::REGEX_ABS_UNIX, $this->path);
 	}
 
 	public function __toString(): string {
@@ -151,7 +177,7 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function isAbsolute(): bool {
-		return $this->getType() != null;
+		return $this->isDOS || $this->isUnix;
 	}
 
 	/**
@@ -202,26 +228,6 @@ class Path implements Stringable, Equalable {
 			return null;
 		$hasParent = sizeof(self::split($normalized->path)) > 1;
 		return $hasParent ? self::normalize(preg_replace('/[^\\\\\/]+$/', '', $normalized->path)) : null;
-	}
-
-	/**
-	 * Get type of a path. It can be DOS, Unix or none. Type of the path is known only if it's an absolute path.
-	 * @return null|PathType Path type or `null` if the path is relative.
-	 * ```php
-	 * // An example
-	 * (new Path('C:/Windows'))->getType(); // PathType::DOS
-	 * (new Path('/root'))->getType();      // PathType::Unix
-	 * (new Path('file.txt'))->getType();   // null
-	 * ```
-	 */
-	public function getType(): ?PathType {
-		$isWinAbsolute = !!preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $this->path);
-		$isNixAbsolute = !!preg_match(self::REGEX_PATH_ABSOLUTE_NIX, $this->path);
-		return match (true) {
-			$isWinAbsolute => PathType::DOS,
-			$isNixAbsolute => PathType::Unix,
-			default => null
-		};
 	}
 
 	/**
@@ -330,19 +336,15 @@ class Path implements Stringable, Equalable {
 	public static function expand(string | self $path, ?array $env = null): self {
 		return self::normalize(preg_replace_callback(self::REGEX_ENV_VAR, function (array $matches) use ($env): string {
 			[$match] = $matches;
-			$type = str_starts_with($match, '$') ? PathType::Unix : PathType::DOS;
+			$isUnix = str_starts_with($match, '$');
 			$name = trim($match, '%$');
 			$env = array_merge(getenv(null, false), getenv(null, true), $env ?? []);
-			switch ($type) {
-				case PathType::DOS:
-					$name = strtolower($name);
-					foreach ($env as $varName => $value)
-						if ($name === strtolower($varName))
-							return $value;
-					return '';
-				case PathType::Unix:
+			if ($isUnix)
 					return isset($env[$name]) ? $env[$name] : '';
-			}
+			$name = strtolower($name);
+			foreach ($env as $varName => $value)
+				if ($name === strtolower($varName))
+					return $value;
 			return '';
 		}, $path));
 	}
@@ -378,7 +380,7 @@ class Path implements Stringable, Equalable {
 				if ($isOut)
 					throw new InvalidArgumentException("Cannot normalize the path '{$path}': too many parent jumps");
 				array_pop($result);
-			} elseif (!$i && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $part)) {
+			} elseif (!$i && preg_match(self::REGEX_ABS_DOS, $part)) {
 				$result[] = strtoupper($part);
 			} else {
 				$result[] = $part;
@@ -387,9 +389,9 @@ class Path implements Stringable, Equalable {
 		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
 		if (!preg_match(self::REGEX_ROOT, $result))
 			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
-		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $result))
+		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_ABS_DOS, $result))
 			$result = rtrim($result, '\\/') . self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
-		$isRoot = preg_match(self::REGEX_PATH_ABSOLUTE_NIX, $path) || preg_match(self::REGEX_PATH_ABSOLUTE_WIN, $path);
+		$isRoot = preg_match(self::REGEX_ABS_UNIX, $path) || preg_match(self::REGEX_ABS_DOS, $path);
 		if (!$result)
 			$result = $isRoot ? self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR] : '.';
 		return new self($result);
