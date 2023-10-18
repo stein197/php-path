@@ -186,6 +186,7 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	public readonly string $path;
 
 	private readonly array $data;
+	private readonly int $dataSize;
 
 	private function __construct(string $path) {
 		$this->path = $path;
@@ -198,7 +199,8 @@ class Path implements ArrayAccess, Stringable, Equalable {
 		if ($this->isRoot)
 			array_pop($data);
 		$this->data = $data;
-		$this->depth = sizeof($this->data) - ($this->isAbsolute ? 1 : 0);
+		$this->dataSize = sizeof($data);
+		$this->depth = $this->dataSize - ($this->isAbsolute ? 1 : 0);
 	}
 
 	public function __toString(): string {
@@ -248,11 +250,10 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	 * ```
 	 */
 	public function getElement(int $index): ?string {
-		$length = sizeof($this->data);
 		$realIndex = match (true) {
 			!$index => $this->isAbsolute ? $index : -1,
 			$index > 0 => $index - +!$this->isAbsolute,
-			$index < 0 => $this->isAbsolute && abs($index) >= $length ? -1 : $length + $index,
+			$index < 0 => $this->isAbsolute && abs($index) >= $this->dataSize ? -1 : $this->dataSize + $index,
 			default => $index
 		};
 		return isset($this->data[$realIndex]) ? $this->data[$realIndex] : null;
@@ -271,7 +272,7 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	 * ```
 	 */
 	public function getParent(): ?self {
-		if ($this->isRoot || sizeof($this->data) === 1)
+		if ($this->isRoot || $this->dataSize === 1)
 			return null;
 		return self::new(preg_replace('/[^\\\\\/]+$/', '', $this->path)); // TODO: Replace with subpath()
 	}
