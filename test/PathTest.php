@@ -245,6 +245,138 @@ describe('Path::equals()', function () {
 	});
 });
 
+describe('Path::getElement()', function () {
+	// Index is 0
+	test('Should return the root when the path is root and the index is 0', function () {
+		expect(Path::new('/')->getElement(0))->toBe('');
+		expect(Path::new('c:')->getElement(0))->toBe('C:');
+		expect(Path::new('c:\\')->getElement(0))->toBe('C:');
+	});
+	test('Should return the root when the path is absolute and the index is 0', function () {
+		expect(Path::new('/var/www/html')->getElement(0))->toBe('');
+		expect(Path::new('C:\\Users\\Admin')->getElement(0))->toBe('C:');
+	});
+	test('Should return null when the path is relative and the index is 0', function () {
+		expect(Path::new('vendor')->getElement(0))->toBeNull();
+		expect(Path::new('vendor/autoload.php')->getElement(0))->toBeNull();
+	});
+	test('Should return null when the path is a current directory and the index is 0', function () {
+		expect(Path::new('.')->getElement(0))->toBeNull();
+	});
+	test('Should return null when the path is a parent directory and the index is 0', function () {
+		expect(Path::new('..')->getElement(0))->toBeNull();
+	});
+	// Index is 1
+	test('Should return null when the path is root and the index is 1', function () {
+		expect(Path::new('/')->getElement(1))->toBeNull();
+		expect(Path::new('C:')->getElement(1))->toBeNull();
+		expect(Path::new('c:\\')->getElement(1))->toBeNull();
+	});
+	test('Should return the first element when the path is absolute and the index is 1', function () {
+		expect(Path::new('/var/www/html')->getElement(1))->toBe('var');
+		expect(Path::new('C:\\Windows\\Fonts')->getElement(1))->toBe('Windows');
+	});
+	test('Should return the first element when the path is relative and the index is 1', function () {
+		expect(Path::new('vendor/bin')->getElement(1))->toBe('vendor');
+		expect(Path::new('vendor/bin/phpunit')->getElement(1))->toBe('vendor');
+	});
+	test('Should return a parent directory when the path starts with a parent directory and the index is 1', function () {
+		expect(Path::new('../vendor')->getElement(1))->toBe('..');
+		expect(Path::new('../vendor/bin')->getElement(1))->toBe('..');
+	});
+	test('Should return the only element when the path is absolute and consists of a single element and the index is 1', function () {
+		expect(Path::new('/var')->getElement(1))->toBe('var');
+		expect(Path::new('C:\\Windows')->getElement(1))->toBe('Windows');
+	});
+	test('Should return the only element when the path is relative and consists of a single element and the index is 1', function () {
+		expect(Path::new('file.txt')->getElement(1))->toBe('file.txt');
+	});
+	// Index is -1
+	test('Should return null when the path is root and the index is -1', function () {
+		expect(Path::new('/')->getElement(-1))->toBeNull();
+		expect(Path::new('c:')->getElement(-1))->toBeNull();
+		expect(Path::new('c:\\')->getElement(-1))->toBeNull();
+	});
+	test('Should return the last element when the path is absolute and the index is -1', function () {
+		expect(Path::new('/var/www/html')->getElement(-1))->toBe('html');
+		expect(Path::new('C:\\Windows\\Fonts')->getElement(-1))->toBe('Fonts');
+	});
+	test('Should return the last element when the path is relative and the index is -1', function () {
+		expect(Path::new('vendor/bin')->getElement(-1))->toBe('bin');
+		expect(Path::new('vendor/bin/phpunit')->getElement(-1))->toBe('phpunit');
+	});
+	test('Should return the only element when the path is absolute and consists of a single element and the index is -1', function () {
+		expect(Path::new('/var')->getElement(-1))->toBe('var');
+		expect(Path::new('C:\\Windows')->getElement(-1))->toBe('Windows');
+	});
+	test('Should return the only element when the path is relative and consists of a single element and the index is -1', function () {
+		expect(Path::new('vendor')->getElement(-1))->toBe('vendor');
+	});
+	// Index is arbitrary
+	test('Should return correct result when the path is absolute and the index is positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getElement(2))->toBe('www');
+		expect(Path::new('/var/www/html/project/public')->getElement(3))->toBe('html');
+		expect(Path::new('/var/www/html/project/public')->getElement(4))->toBe('project');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getElement(2))->toBe('Admin');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getElement(3))->toBe('Project');
+	});
+	test('Should return correct result when the path is relative and the index is positive', function () {
+		expect(Path::new('var/www/html/project/public')->getElement(2))->toBe('www');
+		expect(Path::new('var/www/html/project/public')->getElement(3))->toBe('html');
+		expect(Path::new('var/www/html/project/public')->getElement(4))->toBe('project');
+		expect(Path::new('Users\\Admin\\Project\\Public')->getElement(2))->toBe('Admin');
+		expect(Path::new('Users\\Admin\\Project\\Public')->getElement(3))->toBe('Project');
+	});
+	test('Should return correct result when the path is absolute and the index is negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getElement(-2))->toBe('project');
+		expect(Path::new('/var/www/html/project/public')->getElement(-3))->toBe('html');
+		expect(Path::new('/var/www/html/project/public')->getElement(-4))->toBe('www');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getElement(-2))->toBe('Project');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getElement(-3))->toBe('Admin');
+	});
+	test('Should return correct result when the path is relative and the index is negative', function () {
+		expect(Path::new('var/www/html/project/public')->getElement(-2))->toBe('project');
+		expect(Path::new('var/www/html/project/public')->getElement(-3))->toBe('html');
+		expect(Path::new('var/www/html/project/public')->getElement(-4))->toBe('www');
+		expect(Path::new('Users\\Admin\\Project\\Public')->getElement(-2))->toBe('Project');
+		expect(Path::new('Users\\Admin\\Project\\Public')->getElement(-3))->toBe('Admin');
+	});
+	// Index matches the end
+	test('Should return the last element when the path is absolute and the index is positive and matches the length of the path', function () {
+		expect(Path::new('/var/www/html')->getElement(3))->toBe('html');
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->getElement(3))->toBe('Downloads');
+	});
+	test('Should return the last element when the path is relative and the index is positive and matches the length of the path', function () {
+		expect(Path::new('var/www/html')->getElement(3))->toBe('html');
+		expect(Path::new('Users\\Admin\\Downloads')->getElement(3))->toBe('Downloads');
+	});
+	test('Should return the first element when the path is absolute and the index is negative and matches the length of the path', function () {
+		expect(Path::new('/var/www/html')->getElement(-3))->toBe('var');
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->getElement(-3))->toBe('Users');
+	});
+	test('Should return the first element when the path is relative and the index is negative and matches the length of the path', function () {
+		expect(Path::new('var/www/html')->getElement(-3))->toBe('var');
+		expect(Path::new('Users\\Admin\\Downloads')->getElement(-3))->toBe('Users');
+	});
+	// Index is too big
+	test('Should return null when the path is absolute and the index is positive and it is too big', function () {
+		expect(Path::new('/var/www/html')->getElement(10))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin')->getElement(10))->toBeNull();
+	});
+	test('Should return null when the path is relative and the index is positive and it is too big', function () {
+		expect(Path::new('var/www/html')->getElement(10))->toBeNull();
+		expect(Path::new('Users\\Admin')->getElement(10))->toBeNull();
+	});
+	test('Should return null when the path is absolute and the index is negative and it is too big', function () {
+		expect(Path::new('/var/www/html')->getElement(-10))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin')->getElement(-10))->toBeNull();
+	});
+	test('Should return null when the path is relative and the index is negative and it is too big', function () {
+		expect(Path::new('var/www/html')->getElement(-10))->toBeNull();
+		expect(Path::new('Users\\Admin')->getElement(-10))->toBeNull();
+	});
+});
+
 describe('Path::getParent()', function () {
 	test('Should return null when the path is root', function () {
 		expect(Path::new('/')->getParent())->toBeNull();

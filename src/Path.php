@@ -8,6 +8,7 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_search;
+use function is_int;
 use function is_string;
 use function getenv;
 use function join;
@@ -22,8 +23,10 @@ use function str_starts_with;
 use function strpos;
 use function strtolower;
 use function strtoupper;
+use function trigger_error;
 use function trim;
 use const DIRECTORY_SEPARATOR;
+use const E_USER_WARNING;
 
 /**
  * The class provides means to simplify work with paths (strings like 'C:\Windows\System32', '/usr/bin',
@@ -52,7 +55,7 @@ use const DIRECTORY_SEPARATOR;
  * 
  * All methods that return a path, always return a normalized one.
  */
-// TODO: Implement methods: getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
+// TODO: Implement methods: getSubpath(), startsWith(), endsWith(), toArray()?
 // TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
 class Path implements Stringable, Equalable {
 
@@ -205,6 +208,24 @@ class Path implements Stringable, Equalable {
 	 */
 	public function equals($path): bool {
 		return $path != null && ($path instanceof self || is_string($path)) && $this->path === self::normalize($path)->path;
+	}
+
+	/**
+	 * Retrieve a part of the path by index. 0 is always for root elements, so retrieving an element at 0 when the path
+	 * is relative always results in `null`. Negative indices start counting from the end while positive ones always
+	 * start from the beginning.
+	 * @param int $index Index to retrieve an element by.
+	 * @return null|string Path element by the provided index or `null` if there is no such an element by the index.
+	 * ```php
+	 * Path::new('/')->getElement(0);              // '/'
+	 * Path::new('/var/www/html')->getElement(1);  // 'var'
+	 * Path::new('/var/www/html')->getElement(-1); // 'html'
+	 * Path::new('/var/www/html')->getElement(10); // null
+	 * ```
+	 */
+	public function getElement(int $index): ?string {
+		$realIndex = $index < 0 ? sizeof($this->data) + $index : ($this->isAbsolute ? $index : $index - 1);
+		return $index && $this->isRoot ? null : @$this->data[$realIndex];
 	}
 
 	/**
