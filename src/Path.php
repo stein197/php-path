@@ -22,7 +22,6 @@ use function str_starts_with;
 use function strpos;
 use function strtolower;
 use function strtoupper;
-use function strval;
 use function trim;
 use const DIRECTORY_SEPARATOR;
 
@@ -55,8 +54,6 @@ use const DIRECTORY_SEPARATOR;
  */
 // TODO: Implement methods: getDepth(), getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
 // TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
-// TODO: Make the path immutable (all methods must return a new instance)
-// TODO: Delete exception in case if the amount of jumps exceeds limit
 class Path implements Stringable, Equalable {
 
 	/**
@@ -64,8 +61,8 @@ class Path implements Stringable, Equalable {
 	 * `DIRECTORY_SEPARATOR` by default.
 	 * ```php
 	 * // An example
-	 * (new Path('/a/b'))->format([Path::OPTKEY_SEPARATOR => '\\']); // '\\a\\b'
-	 * (new Path('/a/b'))->format([Path::OPTKEY_SEPARATOR => ' ']);  // an error
+	 * Path::new('/a/b')->format([Path::OPTKEY_SEPARATOR => '\\']); // '\\a\\b'
+	 * Path::new('/a/b')->format([Path::OPTKEY_SEPARATOR => ' ']);  // an error
 	 * ```
 	 */
 	public const OPTKEY_SEPARATOR = 'separator';
@@ -75,8 +72,8 @@ class Path implements Stringable, Equalable {
 	 * `false` by default.
 	 * ```php
 	 * // An example
-	 * (new Path('/a/b'))->format([Path::OPTKEY_TRAILING_SLASH => true]);  // '/a/b/'
-	 * (new Path('/a/b'))->format([Path::OPTKEY_TRAILING_SLASH => false]); // '/a/b'
+	 * Path::new('/a/b')->format([Path::OPTKEY_TRAILING_SLASH => true]);  // '/a/b/'
+	 * Path::new('/a/b')->format([Path::OPTKEY_TRAILING_SLASH => false]); // '/a/b'
 	 * ```
 	 */
 	public const OPTKEY_TRAILING_SLASH = 'trailingSlash';
@@ -98,9 +95,9 @@ class Path implements Stringable, Equalable {
 	 * `true` if the path is DOS-like ('C:\\Windows' and so). It's known only if it's an absolute path, so it's always
 	 * false if the path is relative.
 	 * ```php
-	 * (new Path('C:/Windows'))->isDOS; // true
-	 * (new Path('/root'))->isDOS;      // false
-	 * (new Path('file.txt'))->isDOS;   // false
+	 * Path::new('C:/Windows')->isDOS; // true
+	 * Path::new('/root')->isDOS;      // false
+	 * Path::new('file.txt')->isDOS;   // false
 	 * ```
 	 * @var bool
 	 */
@@ -110,9 +107,9 @@ class Path implements Stringable, Equalable {
 	 * `true` if the path is Unix-like ('/var' and so). It's known only if it's an absolute path, so it's always false
 	 * if the path is relative.
 	 * ```php
-	 * (new Path('C:/Windows'))->isUnix; // false
-	 * (new Path('/root'))->isUnix;      // true
-	 * (new Path('file.txt'))->isUnix;   // false
+	 * Path::new('C:/Windows')->isUnix; // false
+	 * Path::new('/root')->isUnix;      // true
+	 * Path::new('file.txt')->isUnix;   // false
 	 * ```
 	 * @var bool
 	 */
@@ -122,9 +119,9 @@ class Path implements Stringable, Equalable {
 	 * `true` if the path is root. Root paths are a special case of absolute ones since they also start with a slash or
 	 * a drive letter, but they denote only a root folder (like '/', 'C:\').
 	 * ```php
-	 * (new Path('C:\\'))->isRoot;     // true
-	 * (new Path('/'))->isRoot;        // true
-	 * (new Path('/usr/bin'))->isRoot; // false
+	 * Path::new('C:\\')->isRoot;     // true
+	 * Path::new('/')->isRoot;        // true
+	 * Path::new('/usr/bin')->isRoot; // false
 	 * ```
 	 * @var bool
 	 */
@@ -135,9 +132,9 @@ class Path implements Stringable, Equalable {
 	 * letter ('C:', 'C:/', 'C:\\'). It's the opposite of `isRelative`.
 	 * ```php
 	 * // An example
-	 * (new Path('C:\\Windows'))->isAbsolute;         // true
-	 * (new Path('/usr/bin'))->isAbsolute;            // true
-	 * (new Path('vendor/autoload.php'))->isAbsolute; // false
+	 * Path::new('C:\\Windows')->isAbsolute;         // true
+	 * Path::new('/usr/bin')->isAbsolute;            // true
+	 * Path::new('vendor/autoload.php')->isAbsolute; // false
 	 * ```
 	 * @var bool
 	 */
@@ -147,9 +144,9 @@ class Path implements Stringable, Equalable {
 	 * `true` if the path is relative. Relative paths are those that don't start with slashes or drive letter
 	 * ('node_modules', 'public/index.php'). It's the opposite of `isAbsolute`.
 	 * ```php
-	 * (new Path('C:\\Windows'))->isRelative;         // false
-	 * (new Path('/usr/bin'))->isRelative;            // false
-	 * (new Path('vendor/autoload.php'))->isRelative; // true
+	 * Path::new('C:\\Windows')->isRelative;         // false
+	 * Path::new('/usr/bin')->isRelative;            // false
+	 * Path::new('vendor/autoload.php')->isRelative; // true
 	 * ```
 	 * @var bool
 	 */
@@ -161,7 +158,7 @@ class Path implements Stringable, Equalable {
 	 * always have normalized `$path` property.
 	 * ```php
 	 * // An example
-	 * $p = new Path('/a/b\\c/');
+	 * $p = Path::new('/a/b\\c/');
 	 * $p->format(); // could be '/a/b/c'
 	 * $p->path;      // always '/a/b\\c/'
 	 * ```
@@ -205,9 +202,9 @@ class Path implements Stringable, Equalable {
 	 * @throws InvalidArgumentException If normalization cannot be performed on the path.
 	 * ```php
 	 * // An example
-	 * (new Path('/usr/bin'))->getParent(); // Path('/usr')
-	 * (new Path('C:'))->getParent();       // null
-	 * (new Path('vendor'))->getParent();   // null
+	 * Path::new('/usr/bin')->getParent(); // Path('/usr')
+	 * Path::new('C:')->getParent();       // null
+	 * Path::new('vendor')->getParent();   // null
 	 * ```
 	 */
 	public function getParent(): ?self {
@@ -224,9 +221,9 @@ class Path implements Stringable, Equalable {
 	 * @throws InvalidArgumentException If the base is not an absolute path.
 	 * ```php
 	 * // An example
-	 * (new Path('file.txt'))->toAbsolute('C:\\Windows'); // Path('C:\\Windows\\file.txt')
-	 * (new Path('/usr'))->toAbsolute('/home');           // Path('/usr')
-	 * (new Path('/usr'))->toAbsolute('Windows');         // an exception
+	 * Path::new('file.txt')->toAbsolute('C:\\Windows'); // Path('C:\\Windows\\file.txt')
+	 * Path::new('/usr')->toAbsolute('/home');           // Path('/usr')
+	 * Path::new('/usr')->toAbsolute('Windows');         // an exception
 	 * ```
 	 */
 	public function toAbsolute(string | self $base): self {
@@ -246,9 +243,9 @@ class Path implements Stringable, Equalable {
 	 * @throws InvalidArgumentException If the base is not a relative path.
 	 * ```php
 	 * // An example
-	 * (new Path('C:\\Windows\\file.txt'))->toRelative('C:/Windows'); // Path('file.txt')
-	 * (new Path('file.txt'))->toRelative('C:/Windows');              // Path('file.txt')
-	 * (new Path('file.txt'))->toRelative('config.json');             // an exception
+	 * Path::new('C:\\Windows\\file.txt')->toRelative('C:/Windows'); // Path('file.txt')
+	 * Path::new('file.txt')->toRelative('C:/Windows');              // Path('file.txt')
+	 * Path::new('file.txt')->toRelative('config.json');             // an exception
 	 * ```
 	 */
 	public function toRelative(string | self $base): self {
@@ -272,8 +269,8 @@ class Path implements Stringable, Equalable {
 	 * @throws InvalidArgumentException If the separator is not a slash.
 	 * ```php
 	 * // An example
-	 * (new Path('c:/windows\\file.txt'))->format(['separator' => '\\', 'trailingSlash' => false]); // 'C:\\Windows\\file.txt'
-	 * (new Path('\\usr\\bin'))->format(['separator' => '/', 'trailingSlash' => true]);             // '/usr/bin/'
+	 * Path::new('c:/windows\\file.txt')->format(['separator' => '\\', 'trailingSlash' => false]); // 'C:\\Windows\\file.txt'
+	 * Path::new('\\usr\\bin')->format(['separator' => '/', 'trailingSlash' => true]);             // '/usr/bin/'
 	 * ```
 	 */
 	public function format(array $options = self::DEFAULT_OPTIONS): string {
