@@ -257,11 +257,9 @@ class Path implements Stringable, Equalable {
 		$base = $base instanceof self ? $base : self::new($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");
-		$thisFormat = $this->format();
-		$baseFormat = $base->format();
-		if (strpos($thisFormat, $baseFormat) !== 0)
+		if (strpos($this->path, $base->path) !== 0)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not a parent of the path");
-		$result = substr($thisFormat, strlen($baseFormat));
+		$result = substr($this->path, strlen($base->path));
 		$result = ltrim($result, '\\/');
 		return self::new($result);
 	}
