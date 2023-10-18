@@ -219,6 +219,54 @@ describe('Path::__toString()', function () {
 	});
 });
 
+describe('Path::offsetExists()', function () {
+	test('Should return true for existing integer values', function () {
+		expect(isset(Path::new('/var/www/html')[0]))->toBeTrue();
+		expect(isset(Path::new('/var/www/html')[1]))->toBeTrue();
+		expect(isset(Path::new('/var/www/html')[-1]))->toBeTrue();
+	});
+	test('Should return false for any other types', function () {
+		expect(isset(Path::new('/var/www/html')['0']))->toBeFalse();
+		expect(isset(Path::new('/var/www/html')[new stdClass]))->toBeFalse();
+		expect(isset(Path::new('/var/www/html')[null]))->toBeFalse();
+	});
+});
+
+describe('Path::offsetGet()', function () {
+	test('Should return the same result as Path::getElement() when the offset is integer', function () {
+		expect(Path::new('/var/www/html')[0])->toBe('');
+		expect(Path::new('/var/www/html')[1])->toBe('var');
+		expect(Path::new('/var/www/html')[2])->toBe('www');
+		expect(Path::new('/var/www/html')[3])->toBe('html');
+		expect(Path::new('/var/www/html')[4])->toBeNull();
+		expect(Path::new('/var/www/html')[-1])->toBe('html');
+		expect(Path::new('/var/www/html')[-2])->toBe('www');
+		expect(Path::new('/var/www/html')[-3])->toBe('var');
+		expect(Path::new('/var/www/html')[-4])->toBeNull();
+	});
+	test('Should return null for any other types than integer', function () {
+		expect(Path::new('/var/www/html')['string'])->toBeNull();
+		expect(Path::new('/var/www/html')[new stdClass])->toBeNull();
+		expect(Path::new('/var/www/html')[null])->toBeNull();
+	});
+});
+
+describe('Path::offsetSet()', function () {
+	test('Should throw an exception', function () {
+		expect(fn () => Path::new('/var/www/html')[1] = 'var')->toThrow('Unable to set the value \'var\' at index 1: instances of class ' . Path::class . ' are readonly');
+	});
+});
+
+describe('Path::offsetUnset()', function () {
+	test('Should throw an exception', function () {
+		expect(function () {
+			$p = Path::new('/var/www/html');
+			unset($p[1]);
+		})->toThrow('Unable to unset the value at index 1: instances of class ' . Path::class . ' are readonly');
+	});
+
+});
+
 describe('Path::equals()', function () {
 	test('Should return true for equal normalized paths', function () {
 		expect(Path::new('.')->equals('.'))->toBeTrue();

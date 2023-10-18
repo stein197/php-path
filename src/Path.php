@@ -2,8 +2,13 @@
 namespace Stein197\FileSystem;
 
 use Stein197\Equalable;
+use ArrayAccess;
+use Exception;
 use InvalidArgumentException;
+use NunoMaduro\Collision\Adapters\Phpunit\Printers\DefaultPrinter;
 use Stringable;
+use function abs;
+use function addslashes;
 use function array_map;
 use function array_merge;
 use function array_pop;
@@ -56,8 +61,8 @@ use const E_USER_WARNING;
  * All methods that return a path, always return a normalized one.
  */
 // TODO: Implement methods: getSubpath(), startsWith(), endsWith(), toArray()?
-// TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
-class Path implements Stringable, Equalable {
+// TODO: Implement interfaces: Traversable, Iterator, Serializable, Generator, Countable
+class Path implements ArrayAccess, Stringable, Equalable {
 
 	/**
 	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an error is thrown.
@@ -200,6 +205,25 @@ class Path implements Stringable, Equalable {
 		return $this->path;
 	}
 
+	public function offsetExists(mixed $offset): bool {
+		return is_int($offset) && $this->getElement($offset) !== null;
+	}
+
+	public function offsetGet(mixed $offset): mixed {
+		if (is_int($offset))
+			return $this->getElement($offset);
+		trigger_error("Unable to get an element at index '" . addslashes(is_string($offset) ? $offset : '') . "' on path {$this}: using other types than integer are not allowed", E_USER_WARNING);
+		return null;
+	}
+
+	public function offsetSet(mixed $offset, mixed $value): void {
+		throw new Exception("Unable to set the value '{$value}' at index {$offset}: instances of class " . self::class . ' are readonly');
+	}
+	
+	public function offsetUnset(mixed $offset): void {
+		throw new Exception("Unable to unset the value at index {$offset}: instances of class " . self::class . ' are readonly');
+	}
+
 	/**
 	 * Check if the path is equal to another one. Paths are equal when their normalized versions match against each
 	 * other.
@@ -207,7 +231,7 @@ class Path implements Stringable, Equalable {
 	 * @return bool `true` if both paths are equal.
 	 */
 	public function equals($path): bool {
-		return $path != null && ($path instanceof self || is_string($path)) && $this->path === self::normalize($path)->path;
+		return $path !== null && ($path instanceof self || is_string($path)) && $this->path === self::normalize($path)->path;
 	}
 
 	/**
