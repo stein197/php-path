@@ -177,8 +177,8 @@ class Path implements Stringable, Equalable {
 		$this->path = strval($data);
 		if (!$this->path)
 			$this->path = '.';
-		$this->isDOS = !!preg_match(self::REGEX_ABS_DOS, $this->path);
-		$this->isUnix = !!preg_match(self::REGEX_ABS_UNIX, $this->path);
+		$this->isDOS = self::isDOS($this->path);
+		$this->isUnix = self::isUnix($this->path);
 		$this->isRoot = !!preg_match(self::REGEX_ROOT, $this->path);
 		$this->isAbsolute = $this->isDOS || $this->isUnix;
 		$this->isRelative = !$this->isAbsolute;
@@ -347,48 +347,51 @@ class Path implements Stringable, Equalable {
 
 	/**
 	 * Normalize the given path. The next operations will be performed:
-	 * - Removing redundant slashes ('C:\\\\Windows\\file.txt' -> 'C:\\Windows\\file.txt')
-	 * - Removing current directory path ('./vendor' -> 'vendor')
-	 * - Removing parent jumps ('vendor/../public' -> 'public')
+	 * - Removing of redundant slashes ('C:\\\\Windows\\file.txt' -> 'C:\\Windows\\file.txt')
+	 * - Removing of current directory path ('./vendor' -> 'vendor')
+	 * - Removing of parent jumps ('vendor/../public' -> 'public')
 	 * - Unification of slashes (`DIRECTORY_SEPARATOR` is used, '\\usr/bin' -> '/usr/bin')
 	 * - Trimming of trailing slashes ('/usr/bin/' -> '/usr/bin')
-	 * - Capitalizing drive letters ('c:/windows' -> 'C:/windows')
+	 * - Capitalizing of drive letters ('c:/windows' -> 'C:/windows')
 	 * 
 	 * Note, that PHP's `realpath()` returns `false` if the path doesn't exist. `Path::normalize()` doesn't rely on a
 	 * path existence, so an object is always returned.
-	 * @param string $path Path to normalize.
-	 * @return Path Normalized path.
-	 * @throws InvalidArgumentException If there were too many parent jumps
+	 * @param string|self $path Path to normalize. If it's an instance of `Path`, then a copy will be returned.
+	 * @return self Normalized path.
 	 * ```php
-	 * // An example
 	 * Path::normalize('//usr\\bin/./..\\www\\'); // Path('/usr/www')
-	 * Path::normalize('C:\\Windows\\..\\..');    // an exception
+	 * Path::normalize('C:\\Windows\\..\\..');    // Path('C:\\')
 	 * ```
 	 */
-	// TODO: Clone a passed object instead of normalizing it again
 	public static function normalize(string | self $path): self {
+		if ($path instanceof self)
+			return clone $path;
+		$isAbsolute = self::isDOS($path) || self::isUnix($path);
+		$data = self::split($path);
 		$result = [];
-		$parts = self::split($path instanceof self ? $path->path : $path);
-		foreach ($parts as $i => $part) {
-			if ($part === self::DIR_CURRENT) {
+		foreach ($data as $i => $part) {
+			if ($part === self::DIR_CURRENT)
 				continue;
-			} elseif ($part === self::DIR_PARENT) {
-				$isOut = !$result || sizeof($result) === 1 && (!!preg_match(self::REGEX_ROOT, $result[0]) || !$result[0]);
-				if ($isOut)
-					throw new InvalidArgumentException("Cannot normalize the path '{$path}': too many parent jumps");
-				array_pop($result);
+			if ($part === self::DIR_PARENT) {
+				if (!$result || $result[sizeof($result) - 1] === self::DIR_PARENT)
+					$result[] = self::DIR_PARENT;
+				else if (sizeof($result) === 1 && $isAbsolute)
+					continue;
+				else
+					array_pop($result);
 			} else {
 				$result[] = !$i && preg_match(self::REGEX_ABS_DOS, $part) ? strtoupper($part) : $part;
 			}
 		}
-		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
+		$separator = self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
+		$result = join($separator, $result);
 		if (!preg_match(self::REGEX_ROOT, $result))
-			$result = rtrim($result, self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]);
+			$result = rtrim($result, $separator);
 		if (preg_match(self::REGEX_ROOT, $result) && preg_match(self::REGEX_ABS_DOS, $result))
-			$result = rtrim($result, '\\/') . self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
-		$isRoot = preg_match(self::REGEX_ABS_UNIX, $path) || preg_match(self::REGEX_ABS_DOS, $path);
+			$result = rtrim($result, '\\/') . $separator;
+		$isAbsolute = preg_match(self::REGEX_ABS_UNIX, $path) || preg_match(self::REGEX_ABS_DOS, $path);
 		if (!$result)
-			$result = $isRoot ? self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR] : '.';
+			$result = $isAbsolute ? $separator : '.';
 		return new self($result);
 	}
 
@@ -412,5 +415,13 @@ class Path implements Stringable, Equalable {
 					)
 				)
 			);
+	}
+
+	private static function isDOS(string $path): bool {
+		return !!preg_match(self::REGEX_ABS_DOS, $path);
+	}
+
+	private static function isUnix(string $path): bool {
+		return !!preg_match(self::REGEX_ABS_UNIX, $path);
 	}
 }
