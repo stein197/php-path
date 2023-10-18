@@ -246,7 +246,7 @@ describe('Path::getParent()', function () {
 
 describe('Path::toAbsolute()', function () {
 	test('Should throw an exception when the base path is relative', function () {
-		expect(fn () => Path::new('.')->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
+		expect(fn () => Path::new('.')->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'.\' to absolute: the base \'usr' . DIRECTORY_SEPARATOR . 'bin\' is not absolute');
 	});
 	test('Should return a root when there are too many parent jumps', function () {
 		expect(Path::new('vendor/../../..')->toAbsolute('C:\\Windows\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
