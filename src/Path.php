@@ -169,6 +169,8 @@ class Path implements Stringable, Equalable {
 	 */
 	public readonly string $path;
 
+	private readonly array $data;
+
 	private function __construct(string $path) {
 		$this->path = $path;
 		$this->isDOS = self::isDOS($this->path);
@@ -176,14 +178,14 @@ class Path implements Stringable, Equalable {
 		$this->isRoot = !!preg_match(self::REGEX_ROOT, $this->path);
 		$this->isAbsolute = $this->isDOS || $this->isUnix;
 		$this->isRelative = !$this->isAbsolute;
+		$data = self::split($path);
+		if ($this->isRoot)
+			array_pop($data);
+		$this->data = $data;
 	}
 
 	public function __toString(): string {
-		try {
-			return $this->format(self::DEFAULT_OPTIONS);
-		} catch (InvalidArgumentException) {
-			return $this->path;
-		}
+		return $this->path;
 	}
 
 	/**

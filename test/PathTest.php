@@ -173,17 +173,6 @@ describe('Path->isRelative', function () {
 	});
 });
 
-describe('Path::__construct()', function () {
-	test('Should set the path to a current directory when an empty string is passed', function () {
-		$p = Path::new('.');
-		expect($p->path)->toBe('.');
-	});
-	test('Should instantiate an object when the string is not empty', function () {
-		$p = Path::new('public/index.html');
-		expect($p->path)->toBe('public/index.html');
-	});
-});
-
 describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
 		expect((string) Path::new('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
@@ -535,5 +524,12 @@ describe('Path::normalize()', function () {
 		$p1 = Path::normalize('C://\\.//.\\Windows/..\\Windows/Fonts/../Fonts');
 		$p2 = Path::normalize($p1);
 		expect($p2->path)->toBe($p1->path);
+	});
+});
+
+describe('Path::new()', function () {
+	test('Should set the path to a current directory when an empty string is passed', function () {
+		$p = Path::new('');
+		expect($p->path)->toBe('.');
 	});
 });
