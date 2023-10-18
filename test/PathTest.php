@@ -13,6 +13,7 @@ The entire API should be tested against these cases:
 */
 namespace Stein197\FileSystem;
 
+use Directory;
 use InvalidArgumentException;
 use stdClass;
 use function describe;
@@ -282,12 +283,12 @@ describe('Path::toAbsolute()', function () {
 
 describe('Path::toRelative()', function () {
 	test('Should throw an exception when the base path is relative', function () {
-		expect(fn () => Path::new('/usr/bin')->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '/usr/bin' to relative: the base 'home' is not absolute");
-		expect(fn () => Path::new('C:\\Windows\\')->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path 'C:\\Windows\\' to relative: the base 'home' is not absolute");
+		expect(fn () => Path::new('/usr/bin')->toRelative('home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'' . DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin\' to relative: the base \'home\' is not absolute');
+		expect(fn () => Path::new('C:\\Windows\\')->toRelative('home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:' . DIRECTORY_SEPARATOR . 'Windows\' to relative: the base \'home\' is not absolute');
 	});
 	test('Should throw an exception when the base path is not a parent of the current path', function () {
-		expect(fn () => Path::new('/usr/bin')->toRelative('/home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'/usr/bin\' to relative: the base \'/home\' is not a parent of the path');
-		expect(fn () => Path::new('C:\\Windows\\Users')->toRelative('D:\\Games'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:\\Windows\\Users\' to relative: the base \'D:\\Games\' is not a parent of the path');
+		expect(fn () => Path::new('/usr/bin')->toRelative('/home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'' . DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin\' to relative: the base \'' . DIRECTORY_SEPARATOR . 'home\' is not a parent of the path');
+		expect(fn () => Path::new('C:\\Windows\\Users')->toRelative('D:\\Games'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users\' to relative: the base \'D:' . DIRECTORY_SEPARATOR . 'Games\' is not a parent of the path');
 	});
 	test('Should return correct result when the base is an absolute path', function () {
 		expect(Path::new('C:\\Windows\\Users/Admin\\Downloads/file.txt')->toRelative('c:/Windows/Users/Admin')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
