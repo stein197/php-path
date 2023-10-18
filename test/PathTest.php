@@ -174,6 +174,42 @@ describe('Path->isRelative', function () {
 	});
 });
 
+describe('Path->depth', function () {
+	test('Should be 0 when the path is a root', function () {
+		expect(Path::new('/')->depth)->toBe(0);
+		expect(Path::new('\\')->depth)->toBe(0);
+		expect(Path::new('C:\\')->depth)->toBe(0);
+		expect(Path::new('c:')->depth)->toBe(0);
+	});
+	test('Should be 1 when the path is empty', function () {
+		expect(Path::new('')->depth)->toBe(1);
+	});
+	test('Should be 1 when the path is a current directory', function () {
+		expect(Path::new('.')->depth)->toBe(1);
+	});
+	test('Should be 1 when the path is a parent directory', function () {
+		expect(Path::new('..')->depth)->toBe(1);
+	});
+	test('Should be correct when the path is absolute', function () {
+		expect(Path::new('/var')->depth)->toBe(1);
+		expect(Path::new('/var/www')->depth)->toBe(2);
+		expect(Path::new('/var/www/html')->depth)->toBe(3);
+		expect(Path::new('C:\\Windows')->depth)->toBe(1);
+		expect(Path::new('C:\\Windows\\Fonts')->depth)->toBe(2);
+		expect(Path::new('C:\\Windows\\Fonts\\Consolas.ttf')->depth)->toBe(3);
+	});
+	test('Should be correct when the path is relative', function () {
+		expect(Path::new('vendor')->depth)->toBe(1);
+		expect(Path::new('vendor/bin')->depth)->toBe(2);
+		expect(Path::new('vendor/bin/phpunit')->depth)->toBe(3);
+	});
+	test('Should be correct when the path contains unresolved parent directories', function () {
+		expect(Path::new('../..')->depth)->toBe(2);
+		expect(Path::new('../vendor')->depth)->toBe(2);
+		expect(Path::new('../vendor/autoload.php')->depth)->toBe(3);
+	});
+});
+
 describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
 		expect((string) Path::new('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');

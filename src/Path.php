@@ -52,7 +52,7 @@ use const DIRECTORY_SEPARATOR;
  * 
  * All methods that return a path, always return a normalized one.
  */
-// TODO: Implement methods: getDepth(), getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
+// TODO: Implement methods: getElement(), getSubpath(), startsWith(), endsWith(), toArray()?
 // TODO: Implement interfaces: Traversable, Iterator, ArrayAccess, Serializable, Generator, Countable
 class Path implements Stringable, Equalable {
 
@@ -153,6 +153,17 @@ class Path implements Stringable, Equalable {
 	public readonly bool $isRelative;
 
 	/**
+	 * Number of elements the path consists of. 0 is for root paths.
+	 * ```php
+	 * Path::new('/')->depth;                   // 0
+	 * Path::new('C:\Users\Admin')->depth;      // 2
+	 * Path::new('vendor/autoload.php')->depth; // 2
+	 * ```
+	 * @var int
+	 */
+	public readonly int $depth;
+
+	/**
 	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
 	 * constructor, then it holds what was passed to the constructor. Other methods that return `Path` instance will
 	 * always have normalized `$path` property.
@@ -179,6 +190,7 @@ class Path implements Stringable, Equalable {
 		if ($this->isRoot)
 			array_pop($data);
 		$this->data = $data;
+		$this->depth = sizeof($this->data) - ($this->isAbsolute ? 1 : 0);
 	}
 
 	public function __toString(): string {
