@@ -279,10 +279,7 @@ class Path implements Stringable, Equalable {
 	public function format(array $options = self::DEFAULT_OPTIONS): string {
 		$options = array_merge(self::DEFAULT_OPTIONS, $options);
 		self::checkOptions($options);
-		$result = self::normalize($this->path)->path;
-		$result = preg_replace(self::REGEX_SLASH, $options[self::OPTKEY_SEPARATOR], $result);
-		$result .= $options[self::OPTKEY_TRAILING_SLASH] ? $options[self::OPTKEY_SEPARATOR] : '';
-		return $result;
+		return preg_replace(self::REGEX_SLASH, $options[self::OPTKEY_SEPARATOR], $this->path . ($options[self::OPTKEY_TRAILING_SLASH] ? $options[self::OPTKEY_SEPARATOR] : ''));
 	}
 
 	/**

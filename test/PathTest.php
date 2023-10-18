@@ -318,6 +318,10 @@ describe('Path::format()', function () {
 	test('Should append a slash at the end when it is explicitly defined', function () {
 		expect(Path::new('vendor/bin')->format([Path::OPTKEY_TRAILING_SLASH => true]))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR);
 	});
+	test('Should not add an extra slash when it is a root', function () {
+		expect(Path::new('C:/')->format(['trailingSlash' => true]))->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/')->format(['trailingSlash' => true]))->toBe(DIRECTORY_SEPARATOR);
+	});
 });
 
 describe('Path::join()', function () {
