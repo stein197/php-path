@@ -225,7 +225,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function getElement(int $index): ?string {
 		$realIndex = $index < 0 ? sizeof($this->data) + $index : ($this->isAbsolute ? $index : $index - 1);
-		return $index && $this->isRoot ? null : @$this->data[$realIndex];
+		return $index && $this->isRoot || !isset($this->data[$realIndex]) ? null : $this->data[$realIndex];
 	}
 
 	/**
