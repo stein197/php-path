@@ -358,6 +358,39 @@ describe('Path::getElement()', function () {
 		expect(Path::new('var/www/html')->getElement(-3))->toBe('var');
 		expect(Path::new('Users\\Admin\\Downloads')->getElement(-3))->toBe('Users');
 	});
+	// Index is depth + 1
+	test('Should return null when the path is absolute and the index is positive and is greater than depth by 1', function () {
+		expect(Path::new('/var')->getElement(2))->toBeNull();
+		expect(Path::new('/var/www')->getElement(3))->toBeNull();
+		expect(Path::new('/var/www/html')->getElement(4))->toBeNull();
+		expect(Path::new('C:\\Users')->getElement(2))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin')->getElement(3))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->getElement(4))->toBeNull();
+	});
+	test('Should return null when the path is relative and the index is positive and is greater than depth by 1', function () {
+		expect(Path::new('var')->getElement(2))->toBeNull();
+		expect(Path::new('var/www')->getElement(3))->toBeNull();
+		expect(Path::new('var/www/html')->getElement(4))->toBeNull();
+		expect(Path::new('Users')->getElement(2))->toBeNull();
+		expect(Path::new('Users\\Admin')->getElement(3))->toBeNull();
+		expect(Path::new('Users\\Admin\\Downloads')->getElement(4))->toBeNull();
+	});
+	test('Should return null when the path is absolute and the index is negative and is greater than depth by 1', function () {
+		expect(Path::new('/var')->getElement(-2))->toBeNull();
+		expect(Path::new('/var/www')->getElement(-3))->toBeNull();
+		expect(Path::new('/var/www/html')->getElement(-4))->toBeNull();
+		expect(Path::new('C:\\Users')->getElement(-2))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin')->getElement(-3))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->getElement(-4))->toBeNull();
+	});
+	test('Should return null when the path is relative and the index is negative and is greater than depth by 1', function () {
+		expect(Path::new('var')->getElement(-2))->toBeNull();
+		expect(Path::new('var/www')->getElement(-3))->toBeNull();
+		expect(Path::new('var/www/html')->getElement(-4))->toBeNull();
+		expect(Path::new('Users')->getElement(-2))->toBeNull();
+		expect(Path::new('Users\\Admin')->getElement(-3))->toBeNull();
+		expect(Path::new('Users\\Admin\\Downloads')->getElement(-4))->toBeNull();
+	});
 	// Index is too big
 	test('Should return null when the path is absolute and the index is positive and it is too big', function () {
 		expect(Path::new('/var/www/html')->getElement(10))->toBeNull();
