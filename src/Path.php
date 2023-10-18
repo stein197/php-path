@@ -169,11 +169,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public readonly string $path;
 
-	/**
-	 * Create a new path object.
-	 * @param string|self $data A string or another path object.
-	 */
-	public function __construct(string | self $data) {
+	private function __construct(string | self $data) {
 		$this->path = strval($data);
 		if (!$this->path)
 			$this->path = '.';
@@ -393,6 +389,15 @@ class Path implements Stringable, Equalable {
 		if (!$result)
 			$result = $isAbsolute ? $separator : '.';
 		return new self($result);
+	}
+
+	/**
+	 * Create a new path instance. Alias for `Path::normalize()`.
+	 * @param string|self $path String to create a path from.
+	 * @return self Instantiated path.
+	 */
+	public static function new(string | self $path): self {
+		return self::normalize($path);
 	}
 
 	private static function split(string $path): array {

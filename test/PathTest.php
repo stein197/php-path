@@ -26,308 +26,308 @@ afterAll(fn () => putenv('GLOBAL_VARIABLE'));
 
 describe('Path->isDOS', function () {
 	test('Should be true when it is a DOS-like path and it is normalized', function () {
-		expect((new Path('C:'))->isDOS)->toBeTrue();
-		expect((new Path('c:'))->isDOS)->toBeTrue();
-		expect((new Path('c:\\Windows'))->isDOS)->toBeTrue();
-		expect((new Path('C:/Windows'))->isDOS)->toBeTrue();
+		expect(Path::new('C:')->isDOS)->toBeTrue();
+		expect(Path::new('c:')->isDOS)->toBeTrue();
+		expect(Path::new('c:\\Windows')->isDOS)->toBeTrue();
+		expect(Path::new('C:/Windows')->isDOS)->toBeTrue();
 	});
 	test('Should be true when it is a DOS-like path and it is denormalized', function () {
-		expect((new Path('c:/\\'))->isDOS)->toBeTrue();
-		expect((new Path('C:/\\Windows'))->isDOS)->toBeTrue();
+		expect(Path::new('c:/\\')->isDOS)->toBeTrue();
+		expect(Path::new('C:/\\Windows')->isDOS)->toBeTrue();
 	});
 	test('Should be false when it is a Unix-like path and it is normalized', function () {
-		expect((new Path('/'))->isDOS)->toBeFalse();
-		expect((new Path('/var'))->isDOS)->toBeFalse();
+		expect(Path::new('/')->isDOS)->toBeFalse();
+		expect(Path::new('/var')->isDOS)->toBeFalse();
 	});
 	test('Should be false when it is a Unix-like path and it is denormalized', function () {
-		expect((new Path('\\/.//var'))->isDOS)->toBeFalse();
+		expect(Path::new('\\/.//var')->isDOS)->toBeFalse();
 	});
 	test('Should be false when it is a relative path', function () {
-		expect((new Path('file.txt'))->isDOS)->toBeFalse();
-		expect((new Path('vendor/autoload.php'))->isDOS)->toBeFalse();
+		expect(Path::new('file.txt')->isDOS)->toBeFalse();
+		expect(Path::new('vendor/autoload.php')->isDOS)->toBeFalse();
 	});
 });
 
 describe('Path->isUnix', function () {
 	test('Should be true when it is a Unix-like path and it is normalized', function () {
-		expect((new Path('/'))->isUnix)->toBeTrue();
-		expect((new Path('\\'))->isUnix)->toBeTrue();
-		expect((new Path('/usr'))->isUnix)->toBeTrue();
-		expect((new Path('\\usr/bin'))->isUnix)->toBeTrue();
+		expect(Path::new('/')->isUnix)->toBeTrue();
+		expect(Path::new('\\')->isUnix)->toBeTrue();
+		expect(Path::new('/usr')->isUnix)->toBeTrue();
+		expect(Path::new('\\usr/bin')->isUnix)->toBeTrue();
 	});
 	test('Should return true when it is a Unix-like path and it is normalized', function () {
-		expect((new Path('/\\'))->isUnix)->toBeTrue();
-		expect((new Path('/\\'))->isUnix)->toBeTrue();
-		expect((new Path('/usr//'))->isUnix)->toBeTrue();
-		expect((new Path('\\usr\\/bin'))->isUnix)->toBeTrue();
+		expect(Path::new('/\\')->isUnix)->toBeTrue();
+		expect(Path::new('/\\')->isUnix)->toBeTrue();
+		expect(Path::new('/usr//')->isUnix)->toBeTrue();
+		expect(Path::new('\\usr\\/bin')->isUnix)->toBeTrue();
 	});
 	test('Should be false when it is a DOS-like path and it is normalized', function () {
-		expect((new Path('C:'))->isUnix)->toBeFalse();
-		expect((new Path('c:'))->isUnix)->toBeFalse();
-		expect((new Path('c:\\Windows'))->isUnix)->toBeFalse();
-		expect((new Path('C:/Windows'))->isUnix)->toBeFalse();
+		expect(Path::new('C:')->isUnix)->toBeFalse();
+		expect(Path::new('c:')->isUnix)->toBeFalse();
+		expect(Path::new('c:\\Windows')->isUnix)->toBeFalse();
+		expect(Path::new('C:/Windows')->isUnix)->toBeFalse();
 	});
 	test('Should be false when it is a DOS-like path and it is denormalized', function () {
-		expect((new Path('c:/\\'))->isUnix)->toBeFalse();
-		expect((new Path('C:/\\Windows'))->isUnix)->toBeFalse();
+		expect(Path::new('c:/\\')->isUnix)->toBeFalse();
+		expect(Path::new('C:/\\Windows')->isUnix)->toBeFalse();
 	});
 	test('Should be false when it is relative path', function () {
-		expect((new Path('filename.txt'))->isUnix)->toBeFalse();
-		expect((new Path('.git/hooks'))->isUnix)->toBeFalse();
+		expect(Path::new('filename.txt')->isUnix)->toBeFalse();
+		expect(Path::new('.git/hooks')->isUnix)->toBeFalse();
 	});
 });
 
 describe('Path->isRoot', function () {
 	test('Should be true when it is drive', function () {
-		expect((new Path('C:'))->isRoot)->toBeTrue();
-		expect((new Path('c:'))->isRoot)->toBeTrue();
-		expect((new Path('C:\\'))->isRoot)->toBeTrue();
-		expect((new Path('C:/'))->isRoot)->toBeTrue();
+		expect(Path::new('C:')->isRoot)->toBeTrue();
+		expect(Path::new('c:')->isRoot)->toBeTrue();
+		expect(Path::new('C:\\')->isRoot)->toBeTrue();
+		expect(Path::new('C:/')->isRoot)->toBeTrue();
 	});
 	test('Should be true when it is slash', function () {
-		expect((new Path('/'))->isRoot)->toBeTrue();
-		expect((new Path('\\'))->isRoot)->toBeTrue();
-		expect((new Path('\\/'))->isRoot)->toBeTrue();
-		expect((new Path('/\\'))->isRoot)->toBeTrue();
+		expect(Path::new('/')->isRoot)->toBeTrue();
+		expect(Path::new('\\')->isRoot)->toBeTrue();
+		expect(Path::new('\\/')->isRoot)->toBeTrue();
+		expect(Path::new('/\\')->isRoot)->toBeTrue();
 	});
 	test('Should be false when it is an absolute path and is not a root', function () {
-		expect((new Path('C:/Windows'))->isRoot)->toBeFalse();
-		expect((new Path('/var'))->isRoot)->toBeFalse();
+		expect(Path::new('C:/Windows')->isRoot)->toBeFalse();
+		expect(Path::new('/var')->isRoot)->toBeFalse();
 	});
 	test('Should be false when it is a relative path', function () {
-		expect((new Path('file.txt'))->isRoot)->toBeFalse();
-		expect((new Path('vendor/autoload.php'))->isRoot)->toBeFalse();
+		expect(Path::new('file.txt')->isRoot)->toBeFalse();
+		expect(Path::new('vendor/autoload.php')->isRoot)->toBeFalse();
 	});
 });
 
 describe('Path->isAbsolute', function () {
 	test('Should be true when the path is root', function () {
-		expect((new Path('C:'))->isAbsolute)->toBeTrue();
-		expect((new Path('C:/'))->isAbsolute)->toBeTrue();
-		expect((new Path('C:\\/'))->isAbsolute)->toBeTrue();
-		expect((new Path('/'))->isAbsolute)->toBeTrue();
-		expect((new Path('\\/'))->isAbsolute)->toBeTrue();
+		expect(Path::new('C:')->isAbsolute)->toBeTrue();
+		expect(Path::new('C:/')->isAbsolute)->toBeTrue();
+		expect(Path::new('C:\\/')->isAbsolute)->toBeTrue();
+		expect(Path::new('/')->isAbsolute)->toBeTrue();
+		expect(Path::new('\\/')->isAbsolute)->toBeTrue();
 	});
 	test('Should be true when the path is absolute and normalized', function () {
-		expect((new Path('c:\\Windows\\Users'))->isAbsolute)->toBeTrue();
-		expect((new Path('/usr/www/root'))->isAbsolute)->toBeTrue();
+		expect(Path::new('c:\\Windows\\Users')->isAbsolute)->toBeTrue();
+		expect(Path::new('/usr/www/root')->isAbsolute)->toBeTrue();
 	});
 	test('Should be true when the path is absolute and denormalized', function () {
-		expect((new Path('c:\\\\Windows\\Users\\'))->isAbsolute)->toBeTrue();
-		expect((new Path('/usr////www/root///'))->isAbsolute)->toBeTrue();
+		expect(Path::new('c:\\\\Windows\\Users\\')->isAbsolute)->toBeTrue();
+		expect(Path::new('/usr////www/root///')->isAbsolute)->toBeTrue();
 	});
 	test('Should be false when the path is relative and normalized', function () {
-		expect((new Path('vendor/autoload.php'))->isAbsolute)->toBeFalse();
-		expect((new Path('users\\Admin'))->isAbsolute)->toBeFalse();
+		expect(Path::new('vendor/autoload.php')->isAbsolute)->toBeFalse();
+		expect(Path::new('users\\Admin')->isAbsolute)->toBeFalse();
 	});
 	test('Should be false when the path is relative and denormalized', function () {
-		expect((new Path('vendor///autoload.php'))->isAbsolute)->toBeFalse();
-		expect((new Path('users\\\\Admin\\'))->isAbsolute)->toBeFalse();
+		expect(Path::new('vendor///autoload.php')->isAbsolute)->toBeFalse();
+		expect(Path::new('users\\\\Admin\\')->isAbsolute)->toBeFalse();
 	});
 	test('Should be false for current directory', function () {
-		expect((new Path('.'))->isAbsolute)->toBeFalse();
+		expect(Path::new('.')->isAbsolute)->toBeFalse();
 	});
 	test('Should be false for parent directory', function () {
-		expect((new Path('..'))->isAbsolute)->toBeFalse();
+		expect(Path::new('..')->isAbsolute)->toBeFalse();
 	});
 	test('Should be false when the path starts with a current directory', function () {
-		expect((new Path('./vendor/autoload.php'))->isAbsolute)->toBeFalse();
-		expect((new Path('.\users\\Admin'))->isAbsolute)->toBeFalse();
+		expect(Path::new('./vendor/autoload.php')->isAbsolute)->toBeFalse();
+		expect(Path::new('.\users\\Admin')->isAbsolute)->toBeFalse();
 	});
 	test('Should be false then the path starts with a parent directory', function () {
-		expect((new Path('..\\vendor///autoload.php'))->isAbsolute)->toBeFalse();
-		expect((new Path('../users\\\\Admin\\'))->isAbsolute)->toBeFalse();
+		expect(Path::new('..\\vendor///autoload.php')->isAbsolute)->toBeFalse();
+		expect(Path::new('../users\\\\Admin\\')->isAbsolute)->toBeFalse();
 	});
 });
 
 describe('Path->isRelative', function () {
 	test('Should be false when the path is root', function () {
-		expect((new Path('C:'))->isRelative)->toBeFalse();
-		expect((new Path('c:/'))->isRelative)->toBeFalse();
-		expect((new Path('c:\\'))->isRelative)->toBeFalse();
-		expect((new Path('/'))->isRelative)->toBeFalse();
-		expect((new Path('\\'))->isRelative)->toBeFalse();
+		expect(Path::new('C:')->isRelative)->toBeFalse();
+		expect(Path::new('c:/')->isRelative)->toBeFalse();
+		expect(Path::new('c:\\')->isRelative)->toBeFalse();
+		expect(Path::new('/')->isRelative)->toBeFalse();
+		expect(Path::new('\\')->isRelative)->toBeFalse();
 	});
 	test('Should be false when the path is absolute', function () {
-		expect((new Path('C:\\Windows\\'))->isRelative)->toBeFalse();
-		expect((new Path('c:/users/'))->isRelative)->toBeFalse();
-		expect((new Path('/usr/bin'))->isRelative)->toBeFalse();
+		expect(Path::new('C:\\Windows\\')->isRelative)->toBeFalse();
+		expect(Path::new('c:/users/')->isRelative)->toBeFalse();
+		expect(Path::new('/usr/bin')->isRelative)->toBeFalse();
 	});
 	test('Should be true when the path is relative', function () {
-		expect((new Path('file.txt'))->isRelative)->toBeTrue();
-		expect((new Path('vendor/autoload.php'))->isRelative)->toBeTrue();
-		expect((new Path('vendor/phpunit\\\\phpunit/'))->isRelative)->toBeTrue();
+		expect(Path::new('file.txt')->isRelative)->toBeTrue();
+		expect(Path::new('vendor/autoload.php')->isRelative)->toBeTrue();
+		expect(Path::new('vendor/phpunit\\\\phpunit/')->isRelative)->toBeTrue();
 	});
 	test('Should be true when the path is a current directory', function () {
-		expect((new Path('.'))->isRelative)->toBeTrue();
+		expect(Path::new('.')->isRelative)->toBeTrue();
 	});
 	test('Should be true when the path is a parent directory', function () {
-		expect((new Path('..'))->isRelative)->toBeTrue();
+		expect(Path::new('..')->isRelative)->toBeTrue();
 	});
 	test('Should be true when the path starts with a current directory', function () {
-		expect((new Path('./vendor'))->isRelative)->toBeTrue();
+		expect(Path::new('./vendor')->isRelative)->toBeTrue();
 	});
 	test('Should be true when the path starts with a parent directory', function () {
-		expect((new Path('..\\users'))->isRelative)->toBeTrue();
+		expect(Path::new('..\\users')->isRelative)->toBeTrue();
 	});
 });
 
 describe('Path::__construct()', function () {
 	test('Should set the path to a current directory when an empty string is passed', function () {
-		$p = new Path('.');
+		$p = Path::new('.');
 		expect($p->path)->toBe('.');
 	});
 	test('Should instantiate an object when the string is not empty', function () {
-		$p = new Path('public/index.html');
+		$p = Path::new('public/index.html');
 		expect($p->path)->toBe('public/index.html');
 	});
 });
 
 describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
-		expect((string) new Path('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
-		expect((string) new Path('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'public');
+		expect((string) Path::new('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect((string) Path::new('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'public');
 	});
 	test('Should return the initial path if the normalization cannot be performed', function () {
-		expect((string) new Path('..'))->toBe('..');
-		expect((string) new Path('var/..\\..'))->toBe('var/..\\..');
+		expect((string) Path::new('..'))->toBe('..');
+		expect((string) Path::new('var/..\\..'))->toBe('var/..\\..');
 	});
 });
 
 describe('Path::equals()', function () {
 	test('Should return true for equal normalized paths', function () {
-		expect((new Path('.'))->equals('.'))->toBeTrue();
-		expect((new Path('file.txt'))->equals('file.txt'))->toBeTrue();
-		expect((new Path('vendor'))->equals('vendor'))->toBeTrue();
-		expect((new Path('C:\\Windows\\Users\\Admin'))->equals('C:\\Windows\\Users\\Admin'))->toBeTrue();
-		expect((new Path('/var/www/html'))->equals('/var/www/html'))->toBeTrue();
+		expect(Path::new('.')->equals('.'))->toBeTrue();
+		expect(Path::new('file.txt')->equals('file.txt'))->toBeTrue();
+		expect(Path::new('vendor')->equals('vendor'))->toBeTrue();
+		expect(Path::new('C:\\Windows\\Users\\Admin')->equals('C:\\Windows\\Users\\Admin'))->toBeTrue();
+		expect(Path::new('/var/www/html')->equals('/var/www/html'))->toBeTrue();
 	});
 	test('Should return true for equal denormalized paths', function () {
-		expect((new Path('./vendor/.\\\\../vendor/autoload.php'))->equals('vendor\\\\autoload.php'))->toBeTrue();
-		expect((new Path('C:\\Windows\\.././Windows\\Users/./Admin/'))->equals('C:/Windows/Users/Admin'))->toBeTrue();
-		expect((new Path('\\var\\.././var\\www/./html/'))->equals('/var////www\\html'))->toBeTrue();
+		expect(Path::new('./vendor/.\\\\../vendor/autoload.php')->equals('vendor\\\\autoload.php'))->toBeTrue();
+		expect(Path::new('C:\\Windows\\.././Windows\\Users/./Admin/')->equals('C:/Windows/Users/Admin'))->toBeTrue();
+		expect(Path::new('\\var\\.././var\\www/./html/')->equals('/var////www\\html'))->toBeTrue();
 	});
 	test('Should return false for unequal paths', function () {
-		expect((new Path('file.txt'))->equals('vendor'))->toBeFalse();
-		expect((new Path('C:/Windows/Users'))->equals('C:\\Windows\\Fonts'))->toBeFalse();
-		expect((new Path('/var/www/html\\project\\'))->equals('\\var\\www\\html///'))->toBeFalse();
+		expect(Path::new('file.txt')->equals('vendor'))->toBeFalse();
+		expect(Path::new('C:/Windows/Users')->equals('C:\\Windows\\Fonts'))->toBeFalse();
+		expect(Path::new('/var/www/html\\project\\')->equals('\\var\\www\\html///'))->toBeFalse();
 	});
 	test('Should always return false for non-path instances', function () {
-		expect((new Path('.'))->equals(new stdClass))->toBeFalse();
+		expect(Path::new('.')->equals(new stdClass))->toBeFalse();
 	});
 	test('Should always return false for null', function () {
-		expect((new Path('.'))->equals(null))->toBeFalse();
+		expect(Path::new('.')->equals(null))->toBeFalse();
 	});
 });
 
 describe('Path::getParent()', function () {
 	test('Should return null when the path is root', function () {
-		expect((new Path('/'))->getParent())->toBeNull();
-		expect((new Path('\\'))->getParent())->toBeNull();
-		expect((new Path('C:'))->getParent())->toBeNull();
-		expect((new Path('c:/'))->getParent())->toBeNull();
-		expect((new Path('c:\\\\'))->getParent())->toBeNull();
-		expect((new Path('c:\\\\Windows/..'))->getParent())->toBeNull();
-		expect((new Path('/var/www/..\\..'))->getParent())->toBeNull();
+		expect(Path::new('/')->getParent())->toBeNull();
+		expect(Path::new('\\')->getParent())->toBeNull();
+		expect(Path::new('C:')->getParent())->toBeNull();
+		expect(Path::new('c:/')->getParent())->toBeNull();
+		expect(Path::new('c:\\\\')->getParent())->toBeNull();
+		expect(Path::new('c:\\\\Windows/..')->getParent())->toBeNull();
+		expect(Path::new('/var/www/..\\..')->getParent())->toBeNull();
 	});
 	test('Should return null when the path is a current directory', function () {
-		expect((new Path('.'))->getParent())->toBeNull();
+		expect(Path::new('.')->getParent())->toBeNull();
 	});
 	test('Should return null when the path is relative and single', function () {
-		expect((new Path('vendor'))->getParent())->toBeNull();
-		expect((new Path('file.txt'))->getParent())->toBeNull();
-		expect((new Path('vendor//..'))->getParent())->toBeNull();
-		expect((new Path('vendor\\bin\\../..'))->getParent())->toBeNull();
+		expect(Path::new('vendor')->getParent())->toBeNull();
+		expect(Path::new('file.txt')->getParent())->toBeNull();
+		expect(Path::new('vendor//..')->getParent())->toBeNull();
+		expect(Path::new('vendor\\bin\\../..')->getParent())->toBeNull();
 	});
 	test('Should return root when the path is absolute and single', function () {
-		expect((new Path('C:/Windows'))->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((new Path('/var'))->getParent()->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:/Windows')->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var')->getParent()->path)->toBe(DIRECTORY_SEPARATOR);
 	});
 	test('Should return correct result when the path is absolute', function () {
-		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
-		expect((new Path('C:\\Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect((new Path('C:\\Windows/./././../Windows\\Users\\Admin'))->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect((new Path('/var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
-		expect((new Path('/var/././../var/www/html/project'))->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
+		expect(Path::new('C:\\Windows\\Users\\Admin')->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users');
+		expect(Path::new('C:\\Windows\\Users\\Admin')->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('C:\\Windows/./././../Windows\\Users\\Admin')->getParent()->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('/var/www/html/project')->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
+		expect(Path::new('/var/././../var/www/html/project')->getParent()->getParent()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www');
 	});
 	test('Should return correct result when the path is relative', function () {
-		expect((new Path('vendor/bin/phpunit'))->getParent()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
-		expect((new Path('Users\\Downloads\\./..\\Downloads///file.txt'))->getParent()->path)->toBe('Users' . DIRECTORY_SEPARATOR . 'Downloads');
+		expect(Path::new('vendor/bin/phpunit')->getParent()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::new('Users\\Downloads\\./..\\Downloads///file.txt')->getParent()->path)->toBe('Users' . DIRECTORY_SEPARATOR . 'Downloads');
 	});
 });
 
 describe('Path::toAbsolute()', function () {
 	test('Should throw an exception when the base path is relative', function () {
-		expect(fn () => (new Path('.'))->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
+		expect(fn () => Path::new('.')->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
 	});
 	test('Should return a root when there are too many parent jumps', function () {
-		expect((new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('vendor/../../..')->toAbsolute('C:\\Windows\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
 	});
 	test('Should return the path itself when it is already absolute', function () {
-		expect((new Path('/usr/bin'))->toAbsolute('C:\\Windows')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
-		expect((new Path('C:\\Windows'))->toAbsolute('/usr/bin')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('/usr/bin')->toAbsolute('C:\\Windows')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::new('C:\\Windows')->toAbsolute('/usr/bin')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 	});
 	test('Should return correct result when the base is root', function () {
-		expect((new Path('vendor/autoload.php'))->toAbsolute('C:')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
-		expect((new Path('vendor/autoload.php'))->toAbsolute('C:\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
-		expect((new Path('vendor/autoload.php'))->toAbsolute('/')->path)->toBe(DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::new('vendor/autoload.php')->toAbsolute('C:')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::new('vendor/autoload.php')->toAbsolute('C:\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::new('vendor/autoload.php')->toAbsolute('/')->path)->toBe(DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 	});
 	test('Should return the base path when the current one is a current directory', function () {
-		expect((new Path('.'))->toAbsolute('/')->path)->toBe(DIRECTORY_SEPARATOR);
-		expect((new Path('.'))->toAbsolute('c:')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((new Path('.'))->toAbsolute('C:\\Windows')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect((new Path('.'))->toAbsolute('/usr//\\bin/.')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::new('.')->toAbsolute('/')->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('.')->toAbsolute('c:')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('.')->toAbsolute('C:\\Windows')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('.')->toAbsolute('/usr//\\bin/.')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should return a parent of the base when the current one is a parent directory', function () {
-		expect((new Path('..'))->toAbsolute('C:\\Windows')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
-		expect((new Path('..'))->toAbsolute('/usr//\\bin/.')->path)->toBe(DIRECTORY_SEPARATOR . 'usr');
-		expect((new Path('..'))->toAbsolute('C:\\Windows\\Users')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
-		expect((new Path('..'))->toAbsolute('/usr//\\bin/php')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::new('..')->toAbsolute('C:\\Windows')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('..')->toAbsolute('/usr//\\bin/.')->path)->toBe(DIRECTORY_SEPARATOR . 'usr');
+		expect(Path::new('..')->toAbsolute('C:\\Windows\\Users')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('..')->toAbsolute('/usr//\\bin/php')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should correctly jump out when the current path contains enough parent jumps', function () {
-		expect((new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\Users\\Downloads')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
+		expect(Path::new('vendor/../../..')->toAbsolute('C:\\Windows\\Users\\Downloads')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows');
 	});
 	test('Should return an absolute path', function () {
-		expect((new Path('vendor/autoload.php'))->toAbsolute('C:\\inetpub\\wwwroot\\project')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'inetpub' . DIRECTORY_SEPARATOR . 'wwwroot' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+		expect(Path::new('vendor/autoload.php')->toAbsolute('C:\\inetpub\\wwwroot\\project')->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'inetpub' . DIRECTORY_SEPARATOR . 'wwwroot' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 	});
 });
 
 describe('Path::toRelative()', function () {
 	test('Should throw an exception when the base path is relative', function () {
-		expect(fn () => (new Path('/usr/bin'))->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '/usr/bin' to relative: the base 'home' is not absolute");
-		expect(fn () => (new Path('C:\\Windows\\'))->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path 'C:\\Windows\\' to relative: the base 'home' is not absolute");
+		expect(fn () => Path::new('/usr/bin')->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '/usr/bin' to relative: the base 'home' is not absolute");
+		expect(fn () => Path::new('C:\\Windows\\')->toRelative('home'))->toThrow(InvalidArgumentException::class, "Cannot convert the path 'C:\\Windows\\' to relative: the base 'home' is not absolute");
 	});
 	test('Should throw an exception when the base path is not a parent of the current path', function () {
-		expect(fn () => (new Path('/usr/bin'))->toRelative('/home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'/usr/bin\' to relative: the base \'/home\' is not a parent of the path');
-		expect(fn () => (new Path('C:\\Windows\\Users'))->toRelative('D:\\Games'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:\\Windows\\Users\' to relative: the base \'D:\\Games\' is not a parent of the path');
+		expect(fn () => Path::new('/usr/bin')->toRelative('/home'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'/usr/bin\' to relative: the base \'/home\' is not a parent of the path');
+		expect(fn () => Path::new('C:\\Windows\\Users')->toRelative('D:\\Games'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'C:\\Windows\\Users\' to relative: the base \'D:\\Games\' is not a parent of the path');
 	});
 	test('Should return correct result when the base is an absolute path', function () {
-		expect((new Path('C:\\Windows\\Users/Admin\\Downloads/file.txt'))->toRelative('c:/Windows/Users/Admin')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
-		expect((new Path('/var/www/html\\project/public\\index.php'))->toRelative('\\var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
+		expect(Path::new('C:\\Windows\\Users/Admin\\Downloads/file.txt')->toRelative('c:/Windows/Users/Admin')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect(Path::new('/var/www/html\\project/public\\index.php')->toRelative('\\var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
 	});
 	test('Should return correct result when the base is a root path', function () {
-		expect((new Path('C:\\Windows\\Users/Admin\\Downloads/file.txt'))->toRelative('C:')->path)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin' . DIRECTORY_SEPARATOR . 'Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
-		expect((new Path('/var/www/html\\project/public\\index.php'))->toRelative('\\')->path)->toBe('var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php');
+		expect(Path::new('C:\\Windows\\Users/Admin\\Downloads/file.txt')->toRelative('C:')->path)->toBe('Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin' . DIRECTORY_SEPARATOR . 'Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect(Path::new('/var/www/html\\project/public\\index.php')->toRelative('\\')->path)->toBe('var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php');
 	});
 	test('Should return the path itself when the path is already relative', function () {
-		expect((new Path('Downloads\\file.txt'))->toRelative('C:')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
-		expect((new Path('public/index.php'))->toRelative('/var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
+		expect(Path::new('Downloads\\file.txt')->toRelative('C:')->path)->toBe('Downloads' . DIRECTORY_SEPARATOR . 'file.txt');
+		expect(Path::new('public/index.php')->toRelative('/var/www/html/project')->path)->toBe('public' . DIRECTORY_SEPARATOR . 'index.php');
 	});
 });
 
 describe('Path::format()', function () {
 	test('Should throw an error when the path separator is not a slash', function () {
-		expect(fn () => (new Path('vendor/bin'))->format(['separator' => '.']))->toThrow(InvalidArgumentException::class, 'Cannot format a path: invalid separator \'.\'. Only \'\\\', \'/\' characters are allowed');
+		expect(fn () => Path::new('vendor/bin')->format(['separator' => '.']))->toThrow(InvalidArgumentException::class, 'Cannot format a path: invalid separator \'.\'. Only \'\\\', \'/\' characters are allowed');
 	});
 	test('Should return platform-dependent result when no parameters is passed', function () {
-		expect((new Path('vendor/\\bin'))->format())->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
+		expect(Path::new('vendor/\\bin')->format())->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin');
 	});
 	test('Should use specified separator', function () {
-		expect((new Path('vendor\\/bin'))->format([Path::OPTKEY_SEPARATOR => '\\']))->toBe('vendor\\bin');
-		expect((new Path('vendor\\/bin'))->format([Path::OPTKEY_SEPARATOR => '/']))->toBe('vendor/bin');
+		expect(Path::new('vendor\\/bin')->format([Path::OPTKEY_SEPARATOR => '\\']))->toBe('vendor\\bin');
+		expect(Path::new('vendor\\/bin')->format([Path::OPTKEY_SEPARATOR => '/']))->toBe('vendor/bin');
 	});
 	test('Should append a slash at the end when it is explicitly defined', function () {
-		expect((new Path('vendor/bin'))->format([Path::OPTKEY_TRAILING_SLASH => true]))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR);
+		expect(Path::new('vendor/bin')->format([Path::OPTKEY_TRAILING_SLASH => true]))->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR);
 	});
 });
 
