@@ -241,7 +241,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function toAbsolute(string | self $base): self {
 		if ($this->isAbsolute)
-			return self::normalize($this);
+			return clone $this;
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
@@ -263,7 +263,7 @@ class Path implements Stringable, Equalable {
 	 */
 	public function toRelative(string | self $base): self {
 		if ($this->isRelative)
-			return self::normalize($this);
+			return clone $this;
 		$base = $base instanceof self ? $base : new self($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");

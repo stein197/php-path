@@ -260,8 +260,8 @@ describe('Path::toAbsolute()', function () {
 	test('Should throw an exception when the base path is relative', function () {
 		expect(fn () => (new Path('.'))->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, "Cannot convert the path '.' to absolute: the base 'usr/bin' is not absolute");
 	});
-	test('Should throw an exception when there are too many parent jumps in the current directory', function () {
-		expect(fn () => (new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'C:\\Windows\\' . DIRECTORY_SEPARATOR . 'vendor/../../..\': too many parent jumps');
+	test('Should return a root when there are too many parent jumps', function () {
+		expect((new Path('vendor/../../..'))->toAbsolute('C:\\Windows\\')->path)->toBe('C:' . DIRECTORY_SEPARATOR);
 	});
 	test('Should return the path itself when it is already absolute', function () {
 		expect((new Path('/usr/bin'))->toAbsolute('C:\\Windows')->path)->toBe(DIRECTORY_SEPARATOR . 'usr' . DIRECTORY_SEPARATOR . 'bin');
@@ -332,8 +332,9 @@ describe('Path::format()', function () {
 });
 
 describe('Path::join()', function () {
-	test('Should throw an exception when there are too many parent jumps', function () {
-		expect(fn () => Path::join('..'))->toThrow(InvalidArgumentException::class, 'Cannot normalize the path \'..\': too many parent jumps');
+	test('Should keep parent jumps', function () {
+		expect(Path::join('..')->path)->toBe('..');
+		expect(Path::join('..', '..')->path)->toBe('..' . DIRECTORY_SEPARATOR . '..');
 	});
 	test('Should return a current directory when no arguments were passed', function () {
 		expect(Path::join()->path)->toBe('.');
