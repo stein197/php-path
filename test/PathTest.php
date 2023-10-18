@@ -19,6 +19,7 @@ use stdClass;
 use function describe;
 use function expect;
 use function getenv;
+use function preg_replace;
 use function putenv;
 use function test;
 use const DIRECTORY_SEPARATOR;
@@ -494,6 +495,131 @@ describe('Path::getParent()', function () {
 	});
 });
 
+describe('Path::getSubpath()', function () {
+	// No arguments
+	test('Should return a copy when no arguments are passed', function () {
+		expect(Path::new('')->getSubpath()->path)->toBe('.');
+		expect(Path::new('/')->getSubpath()->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:')->getSubpath()->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var/www/html')->getSubpath()->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR);
+		expect(Path::new('C:\\Users\\Admin')->getSubpath()->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath()->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	// Copying with arguments
+	test('Should return a copy when the first argument is 0 and the second one is omitted', function () {
+		expect(Path::new('')->getSubpath(0)->path)->toBe('.');
+		expect(Path::new('/')->getSubpath(0)->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:')->getSubpath(0)->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var/www/html')->getSubpath(0)->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR);
+		expect(Path::new('C:\\Users\\Admin')->getSubpath(0)->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(0)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is start and the second one is -1', function () {
+		expect(Path::new('')->getSubpath(1, -1)->path)->toBe('.');
+		expect(Path::new('/')->getSubpath(0, -1)->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:')->getSubpath(0, -1)->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var/www/html')->getSubpath(0, -1)->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR);
+		expect(Path::new('C:\\Users\\Admin')->getSubpath(0, -1)->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(1, -1)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is start and the second one is positive denotes the end index', function () {
+		expect(Path::new('')->getSubpath(1, 1)->path)->toBe('.');
+		expect(Path::new('/')->getSubpath(0, 0)->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:')->getSubpath(0, 0)->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var/www/html')->getSubpath(0, 3)->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR);
+		expect(Path::new('C:\\Users\\Admin')->getSubpath(0, 2)->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(1, 3)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is start and the second one is positive too large', function () {
+		expect(Path::new('')->getSubpath(1, 10)->path)->toBe('.');
+		expect(Path::new('/')->getSubpath(0, 10)->path)->toBe(DIRECTORY_SEPARATOR);
+		expect(Path::new('C:')->getSubpath(0, 10)->path)->toBe('C:' . DIRECTORY_SEPARATOR);
+		expect(Path::new('/var/www/html')->getSubpath(0, 10)->path)->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR);
+		expect(Path::new('C:\\Users\\Admin')->getSubpath(0, 10)->path)->toBe('C:' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(1, 10)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	// -length, default
+	test('Should return a copy when the first argument is negative and denotes the beginning and the second one is omitted', function () {
+		expect(Path::new('')->getSubpath(-1)->path)->toBe('.');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(-3)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is negative and denotes the beginning and the second one is -1', function () {
+		expect(Path::new('')->getSubpath(-1, -1)->path)->toBe('.');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(-3, -1)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is negative and denotes the beginning and the second one is positive denotes the end index', function () {
+		expect(Path::new('')->getSubpath(-1, 1)->path)->toBe('.');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(-3, 3)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	test('Should return a copy when the first argument is negative and denotes the beginning and the second one is positive too large', function () {
+		expect(Path::new('')->getSubpath(-1, 10)->path)->toBe('.');
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(-3, 10)->path)->toBe('vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'phpunit');
+	});
+	// Normal behavior
+	test('Should return correct result when both indices are positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(1, 5)->path)->toBe(ds('var/www/html/project/public'));
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(2, 3)->path)->toBe(ds('Admin/Project'));
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(2, 4)->path)->toBe(ds('phpunit/phpunit/src'));
+	});
+	test('Should return correct result when the start is positive and the end is negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(1, -2)->path)->toBe(ds('var/www/html/project'));
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(2, -2)->path)->toBe(ds('Admin/Project'));
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(2, -1)->path)->toBe(ds('phpunit/phpunit/src/Runner'));
+	});
+	test('Should return correct result when the start is negative and the end is positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(-4, 5)->path)->toBe(ds('www/html/project/public'));
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-3, 3)->path)->toBe(ds('Admin/Project'));
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-4, 4)->path)->toBe(ds('phpunit/phpunit/src'));
+	});
+	test('Should return correct result when both indices are negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(-5, -1)->path)->toBe(ds('var/www/html/project/public'));
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-3, -2)->path)->toBe(ds('Admin/Project'));
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-4, -2)->path)->toBe(ds('phpunit/phpunit/src'));
+	});
+	// Single part
+	test('Should return a single element when both indices are the same and positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(3, 3)->path)->toBe('html');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(3, 3)->path)->toBe('Project');
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(3, 3)->path)->toBe('phpunit');
+	});
+	test('Should return a single element when both indices are the same and the start is positive and the end is negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(3, -3)->path)->toBe('html');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(3, -2)->path)->toBe('Project');
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(3, -3)->path)->toBe('phpunit');
+	});
+	test('Should return a single element when both indices are the same and the start is negative and the end is positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(-3, 3)->path)->toBe('html');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-2, 3)->path)->toBe('Project');
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-3, 3)->path)->toBe('phpunit');
+	});
+	test('Should return a single element when both indices are the same and negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(-3, -3)->path)->toBe('html');
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-2, -2)->path)->toBe('Project');
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-3, -3)->path)->toBe('phpunit');
+	});
+	test('Should return a copy when both indices are equal by absolute value but different by sign', function () {
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-5, 5)->path)->toBe(ds('vendor/phpunit/phpunit/src/Runner'));
+	});
+	// null
+	test('Should return null when the path is relative and the start index is 0', function () {})->skip();
+	test('Should return null when the the start index is greater than the end and they are both positive', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(10, 20))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10, 20))->toBeNull();
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(10, 20))->toBeNull();
+	});
+	test('Should return null when the the start index is lesser than the end and they are both negative', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(-20, -10))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-20, -10))->toBeNull();
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-20, -10))->toBeNull();
+	});
+	test('Should return null when the start index is greater than the length', function () {
+		expect(Path::new('/var/www/html/project/public')->getSubpath(10))->toBeNull();
+		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10))->toBeNull();
+		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(10))->toBeNull();
+	});
+	test('Should return null when the first argument is 0 and the second one is negative too large', function () {})->skip();
+});
+
 describe('Path::toAbsolute()', function () {
 	test('Should throw an exception when the base path is relative', function () {
 		expect(fn () => Path::new('.')->toAbsolute('usr/bin'))->toThrow(InvalidArgumentException::class, 'Cannot convert the path \'.\' to absolute: the base \'usr' . DIRECTORY_SEPARATOR . 'bin\' is not absolute');
@@ -785,3 +911,8 @@ describe('Path::new()', function () {
 		expect($p->path)->toBe('.');
 	});
 });
+
+// TODO: Rewrite all expectations to use this function
+function ds(string $path): string {
+	return preg_replace('/[\\\\\/]+/', DIRECTORY_SEPARATOR, $path);
+}

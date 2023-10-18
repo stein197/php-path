@@ -5,7 +5,6 @@ use Stein197\Equalable;
 use ArrayAccess;
 use Exception;
 use InvalidArgumentException;
-use NunoMaduro\Collision\Adapters\Phpunit\Printers\DefaultPrinter;
 use Stringable;
 use function abs;
 use function addslashes;
@@ -13,6 +12,7 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_search;
+use function array_slice;
 use function is_int;
 use function is_string;
 use function getenv;
@@ -60,7 +60,7 @@ use const E_USER_WARNING;
  * 
  * All methods that return a path, always return a normalized one.
  */
-// TODO: Implement methods: getSubpath(), startsWith(), endsWith(), toArray()?
+// TODO: Implement methods: startsWith(), endsWith(), isParentOf(), isChildOf(), findBasePath(), toArray()?
 // TODO: Implement interfaces: Traversable, Iterator, Serializable, Generator, Countable
 class Path implements ArrayAccess, Stringable, Equalable {
 
@@ -250,12 +250,7 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	 * ```
 	 */
 	public function getElement(int $index): ?string {
-		$realIndex = match (true) {
-			!$index => $this->isAbsolute ? $index : -1,
-			$index > 0 => $index - +!$this->isAbsolute,
-			$index < 0 => $this->isAbsolute && abs($index) >= $this->dataSize ? -1 : $this->dataSize + $index,
-			default => $index
-		};
+		$realIndex = $this->getRealIndex($index);
 		return isset($this->data[$realIndex]) ? $this->data[$realIndex] : null;
 	}
 
@@ -275,6 +270,38 @@ class Path implements ArrayAccess, Stringable, Equalable {
 		if ($this->isRoot || $this->dataSize === 1)
 			return null;
 		return self::new(preg_replace('/[^\\\\\/]+$/', '', $this->path)); // TODO: Replace with subpath()
+	}
+
+	/**
+	 * Get a subpath of the current path. Indices could be negative, in that case counting starts from the end.
+	 * @param int $start Start index. 0 always denotes root paths.
+	 * @param int $end End index.
+	 * @return null|self Subpath of the current one or `null` of a subpath cannot be retrieved.
+	 * ```php
+	 * Path::new('/var/www/html')->getSubpath();      // Path('/var/www/html'); A copy of the current one
+	 * Path::new('/var/www/html')->getSubpath(1);     // Path('var/www/html')
+	 * Path::new('/var/www/html')->getSubpath(-1);    // Path('html')
+	 * Path::new('/var/www/html')->getSubpath(2, -1); // Path('www/html')
+	 * Path::new('/var/www/html')->getSubpath(10);    // null
+	 * ```
+	 */
+	public function getSubpath(int $start = 0, int $end = -1): ?self {
+		$realStart = $this->getRealIndex($start);
+		if ($realStart < 0)
+			return null;
+		$realEnd = $this->getRealIndex($end);
+		if ($realEnd < 0)
+			$realEnd = $this->dataSize - 1;
+		return $realStart > $realEnd || $realStart > $this->dataSize ? null : self::new(
+			join(
+				self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR],
+				array_slice(
+					$this->data,
+					$realStart,
+					$realEnd - $realStart + 1
+				)
+			)
+		);
 	}
 
 	/**
@@ -448,6 +475,15 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	 */
 	public static function new(string | self $path): self {
 		return self::normalize($path);
+	}
+
+	private function getRealIndex(int $index): int {
+		return match (true) {
+			!$index => $this->isAbsolute ? $index : -1,
+			$index > 0 => $index - +!$this->isAbsolute,
+			$index < 0 => $this->isAbsolute && abs($index) >= $this->dataSize ? -1 : $this->dataSize + $index,
+			default => $index
+		};
 	}
 
 	private static function split(string $path): array {
