@@ -224,8 +224,14 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function getElement(int $index): ?string {
-		$realIndex = $index < 0 ? sizeof($this->data) + $index : ($this->isAbsolute ? $index : $index - 1);
-		return $index && $this->isRoot || !isset($this->data[$realIndex]) ? null : $this->data[$realIndex];
+		$length = sizeof($this->data);
+		$realIndex = match (true) {
+			!$index => $this->isAbsolute ? $index : -1,
+			$index > 0 => $index - +!$this->isAbsolute,
+			$index < 0 => $this->isAbsolute && abs($index) >= $length ? -1 : $length + $index,
+			default => $index
+		};
+		return isset($this->data[$realIndex]) ? $this->data[$realIndex] : null;
 	}
 
 	/**
