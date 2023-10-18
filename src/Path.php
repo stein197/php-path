@@ -169,10 +169,8 @@ class Path implements Stringable, Equalable {
 	 */
 	public readonly string $path;
 
-	private function __construct(string | self $data) {
-		$this->path = strval($data);
-		if (!$this->path)
-			$this->path = '.';
+	private function __construct(string $path) {
+		$this->path = $path;
 		$this->isDOS = self::isDOS($this->path);
 		$this->isUnix = self::isUnix($this->path);
 		$this->isRoot = !!preg_match(self::REGEX_ROOT, $this->path);
@@ -238,7 +236,7 @@ class Path implements Stringable, Equalable {
 	public function toAbsolute(string | self $base): self {
 		if ($this->isAbsolute)
 			return clone $this;
-		$base = $base instanceof self ? $base : new self($base);
+		$base = $base instanceof self ? $base : self::new($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
 		return self::join($base->path, $this->path);
@@ -260,7 +258,7 @@ class Path implements Stringable, Equalable {
 	public function toRelative(string | self $base): self {
 		if ($this->isRelative)
 			return clone $this;
-		$base = $base instanceof self ? $base : new self($base);
+		$base = $base instanceof self ? $base : self::new($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");
 		$thisFormat = $this->format();
@@ -269,7 +267,7 @@ class Path implements Stringable, Equalable {
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not a parent of the path");
 		$result = substr($thisFormat, strlen($baseFormat));
 		$result = ltrim($result, '\\/');
-		return new self($result);
+		return self::new($result);
 	}
 
 	/**
