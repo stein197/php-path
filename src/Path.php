@@ -211,11 +211,9 @@ class Path implements Stringable, Equalable {
 	 * ```
 	 */
 	public function getParent(): ?self {
-		$normalized = self::normalize($this);
-		if ($normalized->isRoot)
+		if ($this->isRoot || sizeof($this->data) === 1)
 			return null;
-		$hasParent = sizeof(self::split($normalized->path)) > 1;
-		return $hasParent ? self::normalize(preg_replace('/[^\\\\\/]+$/', '', $normalized->path)) : null;
+		return self::new(preg_replace('/[^\\\\\/]+$/', '', $this->path)); // TODO: Replace with subpath()
 	}
 
 	/**
