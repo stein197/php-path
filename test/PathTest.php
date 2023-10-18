@@ -177,10 +177,8 @@ describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
 		expect((string) Path::new('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');
 		expect((string) Path::new('\\var///www/./html/..\\\\public/'))->toBe(DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'public');
-	});
-	test('Should return the initial path if the normalization cannot be performed', function () {
 		expect((string) Path::new('..'))->toBe('..');
-		expect((string) Path::new('var/..\\..'))->toBe('var/..\\..');
+		expect((string) Path::new('var/..\\..'))->toBe('..');
 	});
 });
 
