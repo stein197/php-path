@@ -775,6 +775,9 @@ describe('Path::startsWith()', function () {
 		expect(Path::new('C:\\Users\\Admin')->startsWith(Path::new('C:/Users/Admin')))->toBeTrue();
 		expect(Path::new('vendor/bin/phpunit')->startsWith('vendor/bin/phpunit'))->toBeTrue();
 	});
+	test('Should return true when both paths consist of a single element', function () {
+		expect(Path::new('file.txt')->startsWith('file.txt'))->toBeTrue();
+	});
 	test('Should return false when path string starts with a given one but doesn\'t when comparing path objects', function () {
 		expect(Path::new('/var/www/html')->startsWith('/var/ww'))->toBeFalse();
 		expect(Path::new('C:\\Users\\Admin')->startsWith('C:/User'))->toBeFalse();
@@ -782,6 +785,32 @@ describe('Path::startsWith()', function () {
 	});
 	test('Should return false when the starts string is greater than the current one', function () {
 		expect(Path::new('/var/www/html')->startsWith('/var/www/html/project'))->toBeFalse();
+	});
+});
+
+describe('Path::endsWith()', function () {
+	test('Should return true when the path ends with a given one', function () {
+		expect(Path::new('/var/www/html')->endsWith('html'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->endsWith(Path::new('Users/Admin')))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->endsWith('bin/phpunit'))->toBeTrue();
+	});
+	test('Should return true when the path ends with itself', function () {
+		expect(Path::new('/')->endsWith('/'))->toBeTrue();
+		expect(Path::new('C:')->endsWith('c://'))->toBeTrue();
+		expect(Path::new('/var/www/html')->endsWith('/var/www/html'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->endsWith(Path::new('C:/Users/Admin')))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->endsWith('vendor/bin/phpunit'))->toBeTrue();
+	});
+	test('Should return true when both paths constist of a single element', function () {
+		expect(Path::new('file.txt')->endsWith('file.txt'))->toBeTrue();
+	});
+	test('Should return false when path string ends with a given one but doesn\'t when comparing path objects', function () {
+		expect(Path::new('/var/www/html')->endsWith('ww/html'))->toBeFalse();
+		expect(Path::new('C:\\Users\\Admin')->endsWith('dmin'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->endsWith('unit'))->toBeFalse();
+	});
+	test('Should return false when the end string is greater than the current one', function () {
+		expect(Path::new('/var/www/html')->startsWith('/dev/var/www/html'))->toBeFalse();
 	});
 });
 

@@ -60,7 +60,7 @@ use const E_USER_WARNING;
  * 
  * All instances are read-only.
  */
-// TODO: Implement methods: startsWith(), endsWith(), isParentOf(), isChildOf(), findBasePath(), toArray()?
+// TODO: Implement methods: isParentOf(), isChildOf(), findBasePath(), toArray()?
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
@@ -399,8 +399,8 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
-	 * Check if the current path starts with the given one. It's not the same as `str_starts_with`, because this method
-	 * checks elements of paths and not symbols.
+	 * Check if the current path starts with the given one. It's not the same as `str_starts_with()`, because this
+	 * method checks elements of paths and not symbols.
 	 * @param string|self $path Path to check against.
 	 * @return bool `true` if the current path starts with the given one.
 	 * ```php
@@ -413,6 +413,25 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 		$path = self::wrap($path);
 		foreach ($path->data as $i => $element)
 			if ($this->data[$i] !== $element)
+				return false;
+		return true;
+	}
+
+	/**
+	 * Check if the current path ends with the given one. It's not the same as `str_ends_with()`, because this method
+	 * checks elements of paths and not symbols.
+	 * @param string|self $path Path to check against.
+	 * @return bool `true` if the current path ends with the given one.
+	 * ```php
+	 * Path::new('/var/www/html')->endsWith('html');     // true
+	 * Path::new('/var/www/html')->endsWith('www/html'); // true
+	 * Path::new('/var/www/html')->endsWith('ww/html');  // false
+	 * ```
+	 */
+	public function endsWith(string | self $path): bool {
+		$path = $path instanceof self ? $path : self::new($path);
+		for ($i = $path->dataSize - 1, $j = $this->dataSize - 1; $i >= 0; $i--, $j--)
+			if ($path->data[$i] !== $this->data[$j])
 				return false;
 		return true;
 	}
