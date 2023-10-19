@@ -399,6 +399,25 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
+	 * Check if the current path starts with the given one. It's not the same as `str_starts_with`, because this method
+	 * checks elements of paths and not symbols.
+	 * @param string|self $path Path to check against.
+	 * @return bool `true` if the current path starts with the given one.
+	 * ```php
+	 * Path::new('/var/www/html')->startsWith('/');        // true
+	 * Path::new('/var/www/html')->startsWith('/var/www'); // true
+	 * Path::new('/var/www/html')->startsWith('/var/w');   // false
+	 * ```
+	 */
+	public function startsWith(string | self $path): bool {
+		$path = $path instanceof self ? $path : self::new($path);
+		foreach ($path->data as $i => $element)
+			if ($this->data[$i] !== $element)
+				return false;
+		return true;
+	}
+
+	/**
 	 * Concatenate the given paths (`DIRECTORY_SEPARATOR` is used as a separator) and normalize the result.
 	 * @param string[] $data Paths to concatenate
 	 * @return Path Concatenated path.

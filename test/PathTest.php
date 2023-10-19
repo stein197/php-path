@@ -762,6 +762,26 @@ describe('Path::format()', function () {
 	});
 });
 
+describe('Path::startsWith()', function () {
+	test('Should return true when the path starts with a given one', function () {
+		expect(Path::new('/var/www/html')->startsWith('/var/www/'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->startsWith(Path::new('C:/Users')))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->startsWith('vendor'))->toBeTrue();
+	});
+	test('Should return true when the path starts with itself', function () {
+		expect(Path::new('/')->startsWith('/'))->toBeTrue();
+		expect(Path::new('C:')->startsWith('c://'))->toBeTrue();
+		expect(Path::new('/var/www/html')->startsWith('/var/www/html'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->startsWith(Path::new('C:/Users/Admin')))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->startsWith('vendor/bin/phpunit'))->toBeTrue();
+	});
+	test('Should return false when path string starts with a given one but doesn\'t when comparing path objects', function () {
+		expect(Path::new('/var/www/html')->startsWith('/var/ww'))->toBeFalse();
+		expect(Path::new('C:\\Users\\Admin')->startsWith('C:/User'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->startsWith('ven'))->toBeFalse();
+	});
+});
+
 describe('Path::join()', function () {
 	test('Should keep parent jumps', function () {
 		expect(Path::join('..')->path)->toBe('..');
