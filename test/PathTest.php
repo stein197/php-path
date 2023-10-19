@@ -814,6 +814,48 @@ describe('Path::endsWith()', function () {
 	});
 });
 
+describe('Path::isChildOf()', function () {
+	test('Should return true when the current path is a direct child of the given path', function () {
+		expect(Path::new('/var/www/html')->isChildOf('/var/www'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->isChildOf('C:/Users/'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->isChildOf('vendor/bin'))->toBeTrue();
+	});
+	test('Should return true when the current path consists of a single element and the parent is a given directory', function () {
+		expect(Path::new('file.txt')->isChildOf('.'))->toBeTrue();
+	});
+	test('Should return false when the current path is not a direct child of the given path', function () {
+		expect(Path::new('/var/www/html')->isChildOf('/var/'))->toBeFalse();
+		expect(Path::new('C:\\Users\\Admin')->isChildOf('C:/'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->isChildOf('vendor'))->toBeFalse();
+	});
+	test('Should return false when the current path matches the start of the given path but is not a direct child of it', function () {
+		expect(Path::new('/var/www/html')->isChildOf('/var/ww'))->toBeFalse();
+		expect(Path::new('C:\\Users\\Admin')->isChildOf('C:/Users/Ad'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->isChildOf('vendor/b'))->toBeFalse();
+	});
+});
+
+describe('Path::isParentOf()', function () {
+	test('Should return true when the current path is a direct parent of the given path', function () {
+		expect(Path::new('/var/www')->isParentOf('/var/www/html'))->toBeTrue();
+		expect(Path::new('C:/Users/')->isParentOf('C:\\Users\\Admin'))->toBeTrue();
+		expect(Path::new('vendor/bin')->isParentOf('vendor/bin/phpunit'))->toBeTrue();
+	});
+	test('Should return true if the current directory is a direct parent of the given path that consists of a single element', function () {
+		expect(Path::new('.')->isParentOf('file.txt'))->toBeTrue();
+	});
+	test('Should return false when the current path is not a direct parent of the given path', function () {
+		expect(Path::new('/var/')->isParentOf('/var/www/html'))->toBeFalse();
+		expect(Path::new('C:/')->isParentOf('C:\\Users\\Admin'))->toBeFalse();
+		expect(Path::new('vendor')->isParentOf('vendor/bin/phpunit'))->toBeFalse();
+	});
+	test('Should return false when the given path matches the start if the current one but is not a direct child of it', function () {
+		expect(Path::new('/var/ww')->isParentOf('/var/www/html'))->toBeFalse();
+		expect(Path::new('C:/Users/Ad')->isParentOf('C:\\Users\\Admin'))->toBeFalse();
+		expect(Path::new('vendor/b')->isParentOf('vendor/bin/phpunit'))->toBeFalse();
+	});
+});
+
 describe('Path::join()', function () {
 	test('Should keep parent jumps', function () {
 		expect(Path::join('..')->path)->toBe('..');

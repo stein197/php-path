@@ -60,7 +60,7 @@ use const E_USER_WARNING;
  * 
  * All instances are read-only.
  */
-// TODO: Implement methods: isParentOf(), isChildOf(), findBasePath(), toArray()?
+// TODO: Implement methods: findBasePath(), toArray()?
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
@@ -283,7 +283,6 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * Get parent of the path. If the path is root then `null` is returned.
 	 * @return null|Path Parent path or `null` if the path is root or if it's relative one getting a parent is not 
 	 *                   possible.
-	 * @throws InvalidArgumentException If normalization cannot be performed on the path.
 	 * ```php
 	 * // An example
 	 * Path::new('/usr/bin')->getParent(); // Path('/usr')
@@ -361,7 +360,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * relative thethe path itself is returned. If the base is not an absolute path, then an exception is thrown.
 	 * @param string|Path $base Path that will be ripped out of the path.
 	 * @return Path A relative normalized path.
-	 * @throws InvalidArgumentException If the base is not a relative path.
+	 * @throws InvalidArgumentException If the base is not an absolute path.
 	 * ```php
 	 * // An example
 	 * Path::new('C:\\Windows\\file.txt')->toRelative('C:/Windows'); // Path('file.txt')
@@ -431,7 +430,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * ```
 	 */
 	public function endsWith(string | self $path): bool {
-		$path = $path instanceof self ? $path : self::new($path);
+		$path = self::wrap($path);
 		for ($i = $path->dataSize - 1, $j = $this->dataSize - 1; $i >= 0; $i--, $j--)
 			if ($path->data[$i] !== $this->data[$j])
 				return false;
@@ -439,10 +438,41 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
+	 * Check if the current path is a direct child of the given one.
+	 * @param string|self $path Path to check against.
+	 * @return bool `true` if the current path is a direct child of the given one.
+	 * ```php
+	 * Path::new('/var/www/html')->isChildOf('/var/www');        // true
+	 * Path::new('vendor/bin/phpunit')->isChildOf('vendor/bin'); // true
+	 * Path::new('/var/www/html')->isChildOf('/var');            // false
+	 * Path::new('vendor/bin/phpunit')->isChildOf('vendor/b');   // false
+	 * ```
+	 */
+	public function isChildOf(string | self $path): bool {
+		$thisParent = $this->getParent();
+		return $thisParent !== null && $thisParent->equals($path);
+	}
+
+	/**
+	 * Check if the current path is a direct parent of the given one.
+	 * @param string|self $path Path to check against.
+	 * @return bool `true` if the current path is a direct parent of the given one.
+	 * ```php
+	 * Path::new('/var/www')->isParentOf('/var/www/html');        // true
+	 * Path::new('vendor/bin')->isParentOf('vendor/bin/phpunit'); // true
+	 * Path::new('/var')->isParentOf('/var/www/html');            // false
+	 * Path::new('vendor/b')->isParentOf('vendor/bin/phpunit');   // true
+	 * ```
+	 */
+	public function isParentOf(string | self $path): bool {
+		$pathParent = self::wrap($path)->getParent();
+		return $pathParent !== null && $pathParent->equals($this);
+	}
+
+	/**
 	 * Concatenate the given paths (`DIRECTORY_SEPARATOR` is used as a separator) and normalize the result.
 	 * @param string[] $data Paths to concatenate
 	 * @return Path Concatenated path.
-	 * @throws InvalidArgumentException If there are too many parent jumps.
 	 * @uses \Stein197\Path::normalize()
 	 * ```php
 	 * // An example
