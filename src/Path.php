@@ -48,29 +48,32 @@ use const E_USER_WARNING;
  * - drive (`C:`, `D:`, etc.)
  * - drive and slash (`C:\`, `D:/`, etc.)
  * 
- * Other ones are relative. Root paths are a special kind of paths that are absolute and contain only drive and/or slash
- * (`/`, `C:\`, `D:`)
+ * Root paths are a special kind of paths that are absolute and contain only drive and/or slash (`/`, `C:\`, `D:`).
+ * Other ones are relative.
  * 
- * When formatted, all paths have `DIRECTORY_SEPARATOR` separator and don't end with a trailing slash by default,
- * although it can be changed when passing an options object down to {@link \Stein197\FileSystem\Path::format()} function.
+ * The main method to instantiate path objects is a `Path::new()` method. When instantiated, the provided string is
+ * automatically normalized. All instances of this class are read-only, which means that every method that return a path
+ * object always return a new one.
  * 
- * The class also implements `Stringable` interface, so the instance of this class can be safely passed to functions
- * that expect strings as a parameter. When casted to string, a normalized path is returned. If the normalization cannot
- * be performed, then the initial string passed to the constructor will be returned.
- * 
- * All instances are read-only.
+ * The class implements the next interfaces:
+ * - `ArrayAccess`. Allows access to single parts of a path. In attempt of setting something by index, an exception is
+ * thrown
+ * - `Countable`. Allows to pass an instance down to `sizeof()`/`count()` functions. Returns the same as `$depth`
+ * property.
+ * - `Iterator`. Allows to interate through an instance. With each iteration, the next element of the path is returned
+ * - `Stringable`. Instances of the class can be safely passed to the functions that expect strings as a parameter
+ * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
 // TODO: Implement methods: findBasePath(), toArray()?
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	/**
-	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an error is thrown.
+	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an exception is thrown.
 	 * `DIRECTORY_SEPARATOR` by default.
 	 * ```php
-	 * // An example
 	 * Path::new('/a/b')->format([Path::OPTKEY_SEPARATOR => '\\']); // '\\a\\b'
-	 * Path::new('/a/b')->format([Path::OPTKEY_SEPARATOR => ' ']);  // an error
+	 * Path::new('/a/b')->format([Path::OPTKEY_SEPARATOR => ' ']);  // an exception
 	 * ```
 	 */
 	public const OPTKEY_SEPARATOR = 'separator';
@@ -139,7 +142,6 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * `true` if the path is absolute. Absolute paths are those that start with slashes ('/usr', '\\root') or a drive
 	 * letter ('C:', 'C:/', 'C:\\'). It's the opposite of `isRelative`.
 	 * ```php
-	 * // An example
 	 * Path::new('C:\\Windows')->isAbsolute;         // true
 	 * Path::new('/usr/bin')->isAbsolute;            // true
 	 * Path::new('vendor/autoload.php')->isAbsolute; // false
@@ -165,21 +167,16 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * ```php
 	 * Path::new('/')->depth;                   // 0
 	 * Path::new('C:\Users\Admin')->depth;      // 2
-	 * Path::new('vendor/autoload.php')->depth; // 2
+	 * Path::new('vendor/bin/phpunit')->depth;  // 3
 	 * ```
 	 * @var int
 	 */
 	public readonly int $depth;
 
 	/**
-	 * Raw path string that was passed to the constructor. When a path object was created by a direct call to the
-	 * constructor, then it holds what was passed to the constructor. Other methods that return `Path` instance will
-	 * always have normalized `$path` property.
+	 * Normalized string representation of the path.
 	 * ```php
-	 * // An example
-	 * $p = Path::new('/a/b\\c/');
-	 * $p->format(); // could be '/a/b/c'
-	 * $p->path;      // always '/a/b\\c/'
+	 * Path::new('/a/b\\c/')->path; // DIRECTORY_SEPARATOR . 'a' . DIRECTORY_SEPARATOR . 'b' . DIRECTORY_SEPARATOR . 'c'
 	 * ```
 	 * @var string
 	 */
@@ -268,7 +265,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * @param int $index Index to retrieve an element by.
 	 * @return null|string Path element by the provided index or `null` if there is no such an element by the index.
 	 * ```php
-	 * Path::new('/')->getElement(0);              // '/'
+	 * Path::new('/')->getElement(0);              // ''
 	 * Path::new('/var/www/html')->getElement(1);  // 'var'
 	 * Path::new('/var/www/html')->getElement(-1); // 'html'
 	 * Path::new('/var/www/html')->getElement(10); // null
@@ -280,11 +277,9 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
-	 * Get parent of the path. If the path is root then `null` is returned.
-	 * @return null|Path Parent path or `null` if the path is root or if it's relative one getting a parent is not 
-	 *                   possible.
+	 * Get a parent of the path. If the path is root or a current directory then `null` is returned.
+	 * @return null|Path Parent path or `null` if the path is root or a current directory.
 	 * ```php
-	 * // An example
 	 * Path::new('/usr/bin')->getParent(); // Path('/usr')
 	 * Path::new('C:')->getParent();       // null
 	 * Path::new('vendor')->getParent();   // null
@@ -334,7 +329,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
-	 * Normalize and convert the path to an absolute one. It's a concatenation of `$base` and the path itself. If the path is already
+	 * Convert the path to an absolute one. It's a concatenation of `$base` and the path itself. If the path is already
 	 * absolute then the path itself is returned. If the base is not an absolute path, then an exception is thrown.
 	 * @param string|Path $base Path to make this one absolute against.
 	 * @return Path An absolute normalized path.
@@ -356,8 +351,8 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
-	 * Normalize and convert the path to a relative one. It rips the `$base` component out of the path. If the path is already
-	 * relative thethe path itself is returned. If the base is not an absolute path, then an exception is thrown.
+	 * Convert the path to a relative one. It rips the `$base` component out of the path. If the path is already
+	 * relative then the path itself is returned. If the base is not an absolute path, then an exception is thrown.
 	 * @param string|Path $base Path that will be ripped out of the path.
 	 * @return Path A relative normalized path.
 	 * @throws InvalidArgumentException If the base is not an absolute path.
@@ -388,7 +383,6 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * @return string Formatted string.
 	 * @throws InvalidArgumentException If the separator is not a slash.
 	 * ```php
-	 * // An example
 	 * Path::new('c:/windows\\file.txt')->format(['separator' => '\\', 'trailingSlash' => false]); // 'C:\\Windows\\file.txt'
 	 * Path::new('\\usr\\bin')->format(['separator' => '/', 'trailingSlash' => true]);             // '/usr/bin/'
 	 * ```
@@ -475,9 +469,8 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * @return Path Concatenated path.
 	 * @uses \Stein197\Path::normalize()
 	 * ```php
-	 * // An example
 	 * Path::join(__DIR__, 'vendor/bin', 'phpunit.bat'); // Path('/usr/www/vendor/bin/phpunit.bat')
-	 * Path::join('../..', 'phpunit.bat');               // an exception
+	 * Path::join('../..', 'phpunit.bat');               // Path('../../phpunit.bat')
 	 * ```
 	 */
 	public static function join(string ...$data): self {
