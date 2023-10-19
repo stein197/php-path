@@ -64,7 +64,7 @@ use const E_USER_WARNING;
  * - `Stringable`. Instances of the class can be safely passed to the functions that expect strings as a parameter
  * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
-// TODO: Implement methods: findBasePath(), toArray()?
+// TODO: Implement methods: findBasePath(), firstIndexOf(), lastIndexOf(), includes(), replace()
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
