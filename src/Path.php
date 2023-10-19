@@ -286,17 +286,20 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	 * ```
 	 */
 	public function getSubpath(int $start = 0, int $end = -1): ?self {
-		$realStart = $this->getRealIndex($start);
+		$realStart = !$start ? 0 : $this->getRealIndex($start);
 		if ($realStart < 0)
 			return null;
 		$realEnd = $this->getRealIndex($end);
 		if ($realEnd < 0)
-			$realEnd = $this->dataSize - 1;
+			$realEnd = $this->dataSize;
+		$data = $this->data;
+		if ($this->isRoot)
+			$data[] = '';
 		return $realStart > $realEnd || $realStart > $this->dataSize ? null : self::new(
 			join(
 				self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR],
 				array_slice(
-					$this->data,
+					$data,
 					$realStart,
 					$realEnd - $realStart + 1
 				)
