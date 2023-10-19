@@ -6,6 +6,7 @@ use ArrayAccess;
 use Countable;
 use Exception;
 use InvalidArgumentException;
+use Iterator;
 use Stringable;
 use function abs;
 use function addslashes;
@@ -60,8 +61,8 @@ use const E_USER_WARNING;
  * All instances are read-only.
  */
 // TODO: Implement methods: startsWith(), endsWith(), isParentOf(), isChildOf(), findBasePath(), toArray()?
-// TODO: Implement interfaces: Traversable, Iterator, Serializable, Generator
-class Path implements ArrayAccess, Countable, Stringable, Equalable {
+// TODO: Implement interfaces: Serializable, Generator
+class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	/**
 	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an error is thrown.
@@ -186,6 +187,7 @@ class Path implements ArrayAccess, Countable, Stringable, Equalable {
 
 	private readonly array $data;
 	private readonly int $dataSize;
+	private int $i = 0;
 
 	private function __construct(string $path) {
 		$this->path = $path;
@@ -227,6 +229,26 @@ class Path implements ArrayAccess, Countable, Stringable, Equalable {
 
 	public function count(): int {
 		return $this->depth;
+	}
+
+	public function current(): mixed {
+		return $this->data[$this->i];
+	}
+
+	public function key(): mixed {
+		return $this->i;
+	}
+
+	public function next(): void {
+		$this->i++;
+	}
+
+	public function rewind(): void {
+		$this->i = 0;
+	}
+
+	public function valid(): bool {
+		return isset($this->data[$this->i]);
 	}
 
 	/**

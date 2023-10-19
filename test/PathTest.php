@@ -28,6 +28,57 @@ use const DIRECTORY_SEPARATOR;
 beforeAll(fn () => putenv('GLOBAL_VARIABLE=' . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html'));
 afterAll(fn () => putenv('GLOBAL_VARIABLE'));
 
+describe('Path implements Iterator', function () {
+	test('Should correctly interate over empty path', function () {
+		$result = [];
+		foreach (Path::new('') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['.']);
+	});
+	test('Should correctly interate over root path', function () {
+		$result = [];
+		foreach (Path::new('/') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['']);
+		$result = [];
+		foreach (Path::new('c:') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['C:']);
+	});
+	test('Should correctly interate over absolute path', function () {
+		$result = [];
+		foreach (Path::new('/var/www/html') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['', 'var', 'www', 'html']);
+		$result = [];
+		foreach (Path::new('C:\\Users\\Admin') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['C:', 'Users', 'Admin']);
+	});
+	test('Should correctly interate over relative path', function () {
+		$result = [];
+		foreach (Path::new('vendor/bin/phpunit') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['vendor', 'bin', 'phpunit']);
+	});
+	test('Should correctly interate over absolute path with single element', function () {
+		$result = [];
+		foreach (Path::new('/var') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['', 'var']);
+		$result = [];
+		foreach (Path::new('C:\\Windows') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['C:', 'Windows']);
+	});
+	test('Should correctly interate over relative path with single element', function () {
+		$result = [];
+		foreach (Path::new('file.txt') as $k => $v)
+			$result[$k] = $v;
+		expect($result)->toBe(['file.txt']);
+	});
+});
+
 describe('Path->isDOS', function () {
 	test('Should be true when it is a DOS-like path and it is normalized', function () {
 		expect(Path::new('C:')->isDOS)->toBeTrue();
