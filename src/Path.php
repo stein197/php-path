@@ -415,7 +415,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	}
 
 	/**
-	 * Normalize a path and expand environment variables like '%SystemRoot%' for Windows and '$HOME', '~' for Unix.
+	 * Normalize a path and expand environment variables like '%SystemRoot%' for Windows and '$HOME' for Unix.
 	 * Windows-like variables enclosed within percent characters are considered as case-insensitive, while for Unix-like 
 	 * ones considered as case-sensitive.
 	 * @param string $path Path to expand variables within.
@@ -425,11 +425,9 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * // An example
 	 * Path::expand('%SystemRoom%\\Downloads');                 // Path('C:\\Users\\Admin\\Downloads')
 	 * Path::expand('$HOME\\bin');                              // Path('/home/admin/bin')
-	 * Path::expand('~/downloads');                             // Path('/home/admin/downloads')
 	 * Path::expand('$varname/admin', ['varname' => '/home/']); // Path(/home/admin')
 	 * ```
 	 */
-	// TODO: Expand "~" symbol
 	public static function expand(string | self $path, ?array $env = null): self {
 		return self::normalize(preg_replace_callback(self::REGEX_ENV_VAR, function (array $matches) use ($env): string {
 			[$match] = $matches;
