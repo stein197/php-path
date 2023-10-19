@@ -780,6 +780,9 @@ describe('Path::startsWith()', function () {
 		expect(Path::new('C:\\Users\\Admin')->startsWith('C:/User'))->toBeFalse();
 		expect(Path::new('vendor/bin/phpunit')->startsWith('ven'))->toBeFalse();
 	});
+	test('Should return false when the starts string is greater than the current one', function () {
+		expect(Path::new('/var/www/html')->startsWith('/var/www/html/project'))->toBeFalse();
+	});
 });
 
 describe('Path::join()', function () {
