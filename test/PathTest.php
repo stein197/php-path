@@ -21,6 +21,7 @@ use function expect;
 use function getenv;
 use function preg_replace;
 use function putenv;
+use function sizeof;
 use function test;
 use const DIRECTORY_SEPARATOR;
 
@@ -266,6 +267,17 @@ describe('Path::offsetUnset()', function () {
 		})->toThrow('Unable to unset the value at index 1: instances of class ' . Path::class . ' are readonly');
 	});
 
+});
+
+describe('Path::count()', function () {
+	test('Should return the same value as the \'depth\' property', function () {
+		expect(sizeof(Path::new('')))->toBe(1);
+		expect(sizeof(Path::new('/')))->toBe(0);
+		expect(sizeof(Path::new('C:\\')))->toBe(0);
+		expect(sizeof(Path::new('/var/www/html')))->toBe(3);
+		expect(sizeof(Path::new('C:\\Users\\Admin\\Downloads')))->toBe(3);
+		expect(sizeof(Path::new('vendor/bin/phpunit')))->toBe(3);
+	});
 });
 
 describe('Path::equals()', function () {

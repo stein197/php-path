@@ -3,6 +3,7 @@ namespace Stein197\FileSystem;
 
 use Stein197\Equalable;
 use ArrayAccess;
+use Countable;
 use Exception;
 use InvalidArgumentException;
 use Stringable;
@@ -56,13 +57,11 @@ use const E_USER_WARNING;
  * that expect strings as a parameter. When casted to string, a normalized path is returned. If the normalization cannot
  * be performed, then the initial string passed to the constructor will be returned.
  * 
- * `__toString()` returns normalized path.
- * 
- * All methods that return a path, always return a normalized one.
+ * All instances are read-only.
  */
 // TODO: Implement methods: startsWith(), endsWith(), isParentOf(), isChildOf(), findBasePath(), toArray()?
-// TODO: Implement interfaces: Traversable, Iterator, Serializable, Generator, Countable
-class Path implements ArrayAccess, Stringable, Equalable {
+// TODO: Implement interfaces: Traversable, Iterator, Serializable, Generator
+class Path implements ArrayAccess, Countable, Stringable, Equalable {
 
 	/**
 	 * Which separator to use when formatting a path. Allowed values are '\\' and '/', otherwise an error is thrown.
@@ -224,6 +223,10 @@ class Path implements ArrayAccess, Stringable, Equalable {
 	
 	public function offsetUnset(mixed $offset): void {
 		throw new Exception("Unable to unset the value at index {$offset}: instances of class " . self::class . ' are readonly');
+	}
+
+	public function count(): int {
+		return $this->depth;
 	}
 
 	/**
