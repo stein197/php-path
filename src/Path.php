@@ -348,7 +348,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	public function toAbsolute(string | self $base): self {
 		if ($this->isAbsolute)
 			return clone $this;
-		$base = $base instanceof self ? $base : self::new($base);
+		$base = self::wrap($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to absolute: the base '{$base->path}' is not absolute");
 		return self::join($base->path, $this->path);
@@ -370,7 +370,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	public function toRelative(string | self $base): self {
 		if ($this->isRelative)
 			return clone $this;
-		$base = $base instanceof self ? $base : self::new($base);
+		$base = self::wrap($base);
 		if (!$base->isAbsolute)
 			throw new InvalidArgumentException("Cannot convert the path '{$this->path}' to relative: the base '{$base->path}' is not absolute");
 		if (strpos($this->path, $base->path) !== 0)
@@ -410,7 +410,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * ```
 	 */
 	public function startsWith(string | self $path): bool {
-		$path = $path instanceof self ? $path : self::new($path);
+		$path = self::wrap($path);
 		foreach ($path->data as $i => $element)
 			if ($this->data[$i] !== $element)
 				return false;
@@ -559,5 +559,9 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	private static function isUnix(string $path): bool {
 		return !!preg_match(self::REGEX_ABS_UNIX, $path);
+	}
+
+	private static function wrap(string | self $path): self {
+		return $path instanceof self ? $path : self::new($path);
 	}
 }
