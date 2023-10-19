@@ -292,8 +292,10 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * ```
 	 */
 	public function getParent(): ?self {
-		if ($this->isRoot || $this->dataSize === 1)
+		if ($this->isRoot || $this->path === self::DIR_CURRENT)
 			return null;
+		if ($this->isRelative && $this->dataSize === 1)
+			return self::new('.');
 		return self::new(preg_replace('/[^\\\\\/]+$/', '', $this->path)); // TODO: Replace with subpath()
 	}
 

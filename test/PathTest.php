@@ -534,12 +534,12 @@ describe('Path::getParent()', function () {
 	});
 	test('Should return null when the path is a current directory', function () {
 		expect(Path::new('.')->getParent())->toBeNull();
-	});
-	test('Should return null when the path is relative and single', function () {
-		expect(Path::new('vendor')->getParent())->toBeNull();
-		expect(Path::new('file.txt')->getParent())->toBeNull();
 		expect(Path::new('vendor//..')->getParent())->toBeNull();
 		expect(Path::new('vendor\\bin\\../..')->getParent())->toBeNull();
+	});
+	test('Should return current directory when the path is relative and single', function () {
+		expect(Path::new('vendor')->getParent()->path)->toBe('.');
+		expect(Path::new('file.txt')->getParent()->path)->toBe('.');
 	});
 	test('Should return root when the path is absolute and single', function () {
 		expect(Path::new('C:/Windows')->getParent()->path)->toBe('C:' . DIRECTORY_SEPARATOR);
