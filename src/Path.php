@@ -64,7 +64,7 @@ use const E_USER_WARNING;
  * - `Stringable`. Instances of the class can be safely passed to the functions that expect strings as a parameter
  * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
-// TODO: Implement methods: findBasePath(), firstIndexOf(), lastIndexOf(), includes(), replace()
+// TODO: Implement methods: findBasePath(), replace()
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
@@ -461,6 +461,75 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	public function isParentOf(string | self $path): bool {
 		$pathParent = self::wrap($path)->getParent();
 		return $pathParent !== null && $pathParent->equals($this);
+	}
+
+	/**
+	 * Check if the current path contains the given subpath.
+	 * @param string|self $path Subpath to check against.
+	 * @return bool `true` if the current path contains the given one as a subpath.
+	 * ```php
+	 * Path::new('/var/www/html')->includes('www');      // true
+	 * Path::new('/var/www/html')->includes('www/html'); // true
+	 * Path::new('/var/www/html')->includes('/www');     // false
+	 * ```
+	 */
+	public function includes(string | self $path): bool {
+		return $this->firstIndexOf($path) >= 0;
+	}
+
+	/**
+	 * Retrieve the first index of occurence of the given path. 0 is for root.
+	 * @param string|self $path Subpath to find the first index of.
+	 * @param int $start Index to start searching with.
+	 * @return int Index of the first occurence of the given subpath or `-1` if the subpath is not found.
+	 * ```php
+	 * Path::new('/var/www/html')->firstIndexOf('/');        // 0
+	 * Path::new('/var/www/html')->firstIndexOf('/var');     // 0
+	 * Path::new('/var/www/html')->firstIndexOf('var');      // 1
+	 * Path::new('/var/www/html')->firstIndexOf('www');      // 2
+	 * Path::new('/var/www/html')->firstIndexOf('www/html'); // 2
+	 * Path::new('/var/www/html')->firstIndexOf('/www');     // -1
+	 * ```
+	 */
+	public function firstIndexOf(string | self $path, int $start = 0): int {
+		$path = self::wrap($path);
+		if (!$start && !$this->isAbsolute)
+			$start = 1;
+		if ($start)
+			$start = $this->getRealIndex($start);
+		for ($i = $start; $i < $this->dataSize; $i++) {
+			for ($j = 0; $j < $path->dataSize; $j++)
+				if (@$this->data[$j + $i] !== @$path->data[$j])
+					continue 2;
+			return $i;
+		}
+		return -1;
+	}
+
+	/**
+	 * Retrieve the last index of occurence of the given path. 0 is for root.
+	 * @param string|self $path Subpath to find the last index of.
+	 * @param int $end Index to start searching with.
+	 * @return int Index of the last occurence of the given subpath or `-1` if the subpath is not found.
+	 * ```php
+	 * Path::new('/a/b/c/a/b/c')->lastIndexOf('a/b'); // 4
+	 * ```
+	 */
+	public function lastIndexOf(string | self $path, int $end = -1): int {
+		$path = self::wrap($path);
+		if (!$end && !$this->isAbsolute)
+			$end = 1;
+		if ($end)
+			$end = $this->getRealIndex($end);
+		$index = -1;
+		while (true) {
+			$nextIndex = $this->firstIndexOf($path, $index + 1);
+			if ($nextIndex < 0)
+				return $index;
+			if ($nextIndex > $end)
+				return $index;
+			$index = $nextIndex;
+		}
 	}
 
 	/**

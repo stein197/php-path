@@ -856,6 +856,15 @@ describe('Path::isParentOf()', function () {
 	});
 });
 
+// TODO
+describe('Path::includes()', function () {})->skip();
+
+// TODO
+describe('Path::firstIndexOf()', function () {})->skip();
+
+// TODO
+describe('Path::lastIndexOf()', function () {})->skip();
+
 describe('Path::join()', function () {
 	test('Should keep parent jumps', function () {
 		expect(Path::join('..')->path)->toBe('..');
