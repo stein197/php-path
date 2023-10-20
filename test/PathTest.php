@@ -664,7 +664,7 @@ describe('Path::getSubpath()', function () {
 		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-5, 5)->path)->toBe(ds('vendor/phpunit/phpunit/src/Runner'));
 	});
 	// null
-	test('Should return null when the path is relative and the start index is 0', function () {})->skip();
+	test('Should return null when the path is relative and the start index is 0', function () {})->todo();
 	test('Should return null when the the start index is greater than the end and they are both positive', function () {
 		expect(Path::new('/var/www/html/project/public')->getSubpath(10, 20))->toBeNull();
 		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10, 20))->toBeNull();
@@ -680,7 +680,7 @@ describe('Path::getSubpath()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10))->toBeNull();
 		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(10))->toBeNull();
 	});
-	test('Should return null when the first argument is 0 and the second one is negative too large', function () {})->skip();
+	test('Should return null when the first argument is 0 and the second one is negative too large', function () {})->todo();
 });
 
 describe('Path::toAbsolute()', function () {
@@ -857,13 +857,13 @@ describe('Path::isParentOf()', function () {
 });
 
 // TODO
-describe('Path::includes()', function () {})->skip();
+describe('Path::includes()', function () {})->todo();
 
 // TODO
-describe('Path::firstIndexOf()', function () {})->skip();
+describe('Path::firstIndexOf()', function () {})->todo();
 
 // TODO
-describe('Path::lastIndexOf()', function () {})->skip();
+describe('Path::lastIndexOf()', function () {})->todo();
 
 describe('Path::join()', function () {
 	test('Should keep parent jumps', function () {
@@ -951,7 +951,7 @@ describe('Path::expand()', function () {
 	test('Should expand multiple variables', function () {
 		expect(Path::expand('%global_variable%/$varname', ['varname' => 'admin'])->path)->toBe(getenv('global_variable') . DIRECTORY_SEPARATOR . 'admin');
 	});
-	test('Should expand ~ Unix symbol', function () {})->skip();
+	test('Should expand ~ Unix symbol', function () {})->todo();
 });
 
 describe('Path::normalize()', function () {
@@ -1079,7 +1079,7 @@ describe('Path::new()', function () {
 });
 
 // TODO
-describe('Path::findCommonBase()', function () {})->skip();
+describe('Path::findCommonBase()', function () {})->todo();
 
 // TODO: Rewrite all expectations to use this function
 function ds(string $path): string {
