@@ -13,7 +13,6 @@ The entire API should be tested against these cases:
 */
 namespace Stein197\FileSystem;
 
-use Directory;
 use InvalidArgumentException;
 use stdClass;
 use function describe;
@@ -21,12 +20,21 @@ use function expect;
 use function getenv;
 use function preg_replace;
 use function putenv;
+use function serialize;
 use function sizeof;
 use function test;
+use function unserialize;
 use const DIRECTORY_SEPARATOR;
 
 beforeAll(fn () => putenv('GLOBAL_VARIABLE=' . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'html'));
 afterAll(fn () => putenv('GLOBAL_VARIABLE'));
+
+test('Should correctly restore an instance from unserialized path', function () {
+	$p = Path::new('/var/www/html');
+	$serialized = serialize($p);
+	$unserialized = unserialize($serialized);
+	expect($p->equals($unserialized))->toBeTrue();
+});
 
 describe('Path implements Iterator', function () {
 	test('Should correctly interate over empty path', function () {

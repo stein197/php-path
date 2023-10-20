@@ -66,7 +66,6 @@ use const E_USER_WARNING;
  * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
 // TODO: Implement methods: replace()
-// TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	/**
