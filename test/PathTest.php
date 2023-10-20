@@ -856,8 +856,46 @@ describe('Path::isParentOf()', function () {
 	});
 });
 
-// TODO
-describe('Path::includes()', function () {})->todo();
+describe('Path::includes()', function () {
+	test('Should return true when the path is root and the needle is also a root', function () {
+		expect(Path::new('/')->includes('/'))->toBeTrue();
+		expect(Path::new('C:\\')->includes('c:'))->toBeTrue();
+	});
+	test('Should return true when the path is absolute and the needle is a root', function () {
+		expect(Path::new('/var/www/html')->includes('/'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->includes('C:\\'))->toBeTrue();
+	});
+	test('Should return true when the path is absolute and the needle is relative', function () {
+		expect(Path::new('/var/www/html')->includes('var'))->toBeTrue();
+		expect(Path::new('/var/www/html')->includes('var/www'))->toBeTrue();
+		expect(Path::new('/var/www/html')->includes('www'))->toBeTrue();
+		expect(Path::new('/var/www/html')->includes('www/html'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->includes('Users'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->includes('Users/Admin'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->includes('Admin'))->toBeTrue();
+	});
+	test('Should return true when the path is relative and the needle is relative', function () {
+		expect(Path::new('vendor/bin/phpunit')->includes('vendor'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->includes('bin'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->includes('phpunit'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->includes('vendor/bin'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->includes('bin/phpunit'))->toBeTrue();
+	});
+	test('Should return true when the path and the needle are equal', function () {
+		expect(Path::new('/var/www/html')->includes('/var/www/html'))->toBeTrue();
+		expect(Path::new('C:\\Users\\Admin')->includes('C:\\Users\\Admin'))->toBeTrue();
+		expect(Path::new('vendor/bin/phpunit')->includes('vendor/bin/phpunit'))->toBeTrue();
+	});
+	test('Should return false when the path is relative and the needle is absolute', function () {
+		expect(Path::new('vendor/bin/phpunit')->includes('/bin/phpunit'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->includes('/phpunit'))->toBeFalse();
+	});
+	test('Should return false when the needle is a substring of a the path\'s substring, but is not a subpath', function () {
+		expect(Path::new('vendor/bin/phpunit')->includes('vendor/bi'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->includes('bin/php'))->toBeFalse();
+		expect(Path::new('vendor/bin/phpunit')->includes('php'))->toBeFalse();
+	});
+});
 
 // TODO
 describe('Path::firstIndexOf()', function () {})->todo();
