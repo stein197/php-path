@@ -1116,8 +1116,34 @@ describe('Path::new()', function () {
 	});
 });
 
-// TODO
-describe('Path::findCommonBase()', function () {})->todo();
+describe('Path::findCommonBase()', function () {
+	test('Should return null when no arguments were passed', function () {
+		expect(Path::findCommonBase())->toBeNull();
+	});
+	test('Should return null when there is no a base path', function () {
+		expect(Path::findCommonBase('/var/www/html', 'C:\\Users\\Admin'))->toBeNull();
+	});
+	test('Should return null when some paths are absolute and some are relative', function () {
+		expect(Path::findCommonBase('/var/www/html', 'var/bin'))->toBeNull();
+	});
+	test('Should return root path when the root path is the common base', function () {
+		expect(Path::findCommonBase('/var/www/html', '/usr/bin')->path)->toBe(ds('/'));
+		expect(Path::findCommonBase('C:\\Users\\Admin', 'C:\\Windows')->path)->toBe(ds('C:/'));
+	});
+	test('Should return the path itself when there was only one argument', function () {
+		expect(Path::findCommonBase('/var/www/html')->path)->toBe(ds('/var/www/html'));
+	});
+	test('Should return the path itself when all arguments are equal paths', function () {
+		expect(Path::findCommonBase('/var/www/html', '/var/www/html', '/var/www/html')->path)->toBe(ds('/var/www/html'));
+	});
+	test('Should return correct base path when the paths are absolute', function () {
+		expect(Path::findCommonBase('/var/www/html', '/var/www/css', '/var/www/js')->path)->toBe(ds('/var/www'));
+		expect(Path::findCommonBase('C:\\Users\\Admin\\Downloads', 'C:\\Users\\Admin\\TEMP', 'C:\\Users\\Admin\\Videos')->path)->toBe(ds('C:/Users/Admin'));
+	});
+	test('Should return correct base path when the paths are relative', function () {
+		expect(Path::findCommonBase('vendor/bin/phpunit', 'vendor/autoload.php', 'vendor')->path)->toBe('vendor');
+	});
+});
 
 // TODO: Rewrite all expectations to use this function
 function ds(string $path): string {
