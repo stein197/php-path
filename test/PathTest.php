@@ -1078,6 +1078,9 @@ describe('Path::new()', function () {
 	});
 });
 
+// TODO
+describe('Path::findCommonBase()', function () {})->skip();
+
 // TODO: Rewrite all expectations to use this function
 function ds(string $path): string {
 	return preg_replace('/[\\\\\/]+/', DIRECTORY_SEPARATOR, $path);

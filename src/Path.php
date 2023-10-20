@@ -15,6 +15,7 @@ use function array_merge;
 use function array_pop;
 use function array_search;
 use function array_slice;
+use function array_splice;
 use function is_int;
 use function is_string;
 use function getenv;
@@ -64,7 +65,7 @@ use const E_USER_WARNING;
  * - `Stringable`. Instances of the class can be safely passed to the functions that expect strings as a parameter
  * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
-// TODO: Implement methods: findBasePath(), replace()
+// TODO: Implement methods: replace()
 // TODO: Implement interfaces: Serializable, Generator
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
@@ -635,6 +636,32 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 		return self::normalize($path);
 	}
 
+	/**
+	 * Find a common longest path among the given paths.
+	 * @param (string|self)[] $paths Paths to find a base among.
+	 * @return null|self Base path or `null` if there is no base path.
+	 * ```php
+	 * Path::findCommonBase('/var/www/html', '/var/www/css', '/var/www/js'); // Path('/var/www')
+	 * Path::findCommonBase('/var/www/html', 'C:\\Windows');                 // null
+	 * ```
+	 */
+	public static function findCommonBase(string | self ...$paths): ?self {
+		if (!$paths)
+			return null;
+		$paths = array_map(fn (string | self $path): self => self::wrap($path), $paths);
+		$result = [...$paths[0]];
+		foreach ($paths as $path) {
+			foreach ($path as $i => $part)
+				if ($result[$i] !== $part) {
+					array_splice($result, $i);
+					break;
+				}
+			if (!$result)
+				return null;
+		}
+		return self::new(join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result));
+	}
+
 	private function getRealIndex(int $index): int {
 		return match (true) {
 			!$index => $this->isAbsolute ? $index : -1,
@@ -658,7 +685,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 					join(
 						', ',
 						array_map(
-							fn ($char): string => "'{$char}'",
+							fn (string $char): string => "'{$char}'",
 							self::ALLOWED_SEPARATORS
 						)
 					)
