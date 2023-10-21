@@ -38,52 +38,25 @@ test('Should correctly restore an instance from unserialized path', function () 
 
 describe('Path implements Iterator', function () {
 	test('Should correctly interate over empty path', function () {
-		$result = [];
-		foreach (Path::new('') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['.']);
+		expect([...Path::new('')])->toBe(['.']);
 	});
 	test('Should correctly interate over root path', function () {
-		$result = [];
-		foreach (Path::new('/') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['']);
-		$result = [];
-		foreach (Path::new('c:') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['C:']);
+		expect([...Path::new('/')])->toBe(['']);
+		expect([...Path::new('c:')])->toBe(['C:']);
 	});
 	test('Should correctly interate over absolute path', function () {
-		$result = [];
-		foreach (Path::new('/var/www/html') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['', 'var', 'www', 'html']);
-		$result = [];
-		foreach (Path::new('C:\\Users\\Admin') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['C:', 'Users', 'Admin']);
+		expect([...Path::new('/var/www/html')])->toBe(['', 'var', 'www', 'html']);
+		expect([...Path::new('C:\\Users\\Admin')])->toBe(['C:', 'Users', 'Admin']);
 	});
 	test('Should correctly interate over relative path', function () {
-		$result = [];
-		foreach (Path::new('vendor/bin/phpunit') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['vendor', 'bin', 'phpunit']);
+		expect([...Path::new('vendor/bin/phpunit')])->toBe(['vendor', 'bin', 'phpunit']);
 	});
 	test('Should correctly interate over absolute path with single element', function () {
-		$result = [];
-		foreach (Path::new('/var') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['', 'var']);
-		$result = [];
-		foreach (Path::new('C:\\Windows') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['C:', 'Windows']);
+		expect([...Path::new('/var')])->toBe(['', 'var']);
+		expect([...Path::new('C:\\Windows')])->toBe(['C:', 'Windows']);
 	});
 	test('Should correctly interate over relative path with single element', function () {
-		$result = [];
-		foreach (Path::new('file.txt') as $k => $v)
-			$result[$k] = $v;
-		expect($result)->toBe(['file.txt']);
+		expect([...Path::new('file.txt')])->toBe(['file.txt']);
 	});
 });
 
