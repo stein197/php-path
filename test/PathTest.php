@@ -244,6 +244,19 @@ describe('Path->depth', function () {
 	});
 });
 
+describe('Path->drive', function () {
+	test('Should be correct when the path is DOS', function () {
+		expect(Path::new('C:\\Windows')->drive)->toBe('C');
+		expect(Path::new('d:/Games')->drive)->toBe('D');
+	});
+	test('Should be null when the path is Unix', function () {
+		expect(Path::new('/var')->drive)->toBeNull();
+	});
+	test('Should be null when the path is relative', function () {
+		expect(Path::new('vendor')->drive)->toBeNull();
+	});
+});
+
 describe('Path::__toString()', function () {
 	test('Should return normalized path', function () {
 		expect((string) Path::new('c:\\Windows///Users/./Admin/..\\\\Admin/'))->toBe('C:' . DIRECTORY_SEPARATOR . 'Windows' . DIRECTORY_SEPARATOR . 'Users' . DIRECTORY_SEPARATOR . 'Admin');

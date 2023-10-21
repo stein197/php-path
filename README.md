@@ -40,6 +40,7 @@ $p->isRoot;     // false
 $p->isAbsolute; // true
 $p->isRelative; // false
 $p->depth;      // 5
+$p->drive;      // null; Valid only for DOS paths
 $p->path;       // '/var/www/html/project/public'
 
 // Dynamic methods

@@ -177,6 +177,17 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	public readonly int $depth;
 
 	/**
+	 * Contains drive letter if the path is DOS-like
+	 * ```php
+	 * Path::new('C:\\Windows')->drive; // 'C'
+	 * Path::new('/var')->drive;        // null
+	 * Path::new('vendor')->drive;      // null
+	 * ```
+	 * @var null|string
+	 */
+	public readonly ?string $drive;
+
+	/**
 	 * Normalized string representation of the path.
 	 * ```php
 	 * Path::new('/a/b\\c/')->path; // DIRECTORY_SEPARATOR . 'a' . DIRECTORY_SEPARATOR . 'b' . DIRECTORY_SEPARATOR . 'c'
@@ -202,6 +213,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 		$this->data = $data;
 		$this->dataSize = sizeof($data);
 		$this->depth = $this->dataSize - ($this->isAbsolute ? 1 : 0);
+		$this->drive = $this->isDOS ? $this->data[0][0] : null;
 	}
 
 	public function __toString(): string {
