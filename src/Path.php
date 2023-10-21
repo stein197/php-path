@@ -54,7 +54,11 @@ use const E_USER_WARNING;
  * 
  * The main method to instantiate path objects is a `Path::new()` method. When instantiated, the provided string is
  * automatically normalized. All instances of this class are read-only, which means that every method that return a path
- * object always return a new one.
+ * object always returns a new one.
+ * 
+ * Many methods work with indices. 0 index always points to the root, so for example for relative paths, the index 0 is
+ * absent. The class also works with negative indices, in such case the counting starts from the end of the path (for
+ * example index -1 points to the last part of the path).
  * 
  * The class implements the next interfaces:
  * - `ArrayAccess`. Allows access to single parts of a path. In attempt of setting something by index, an exception is
@@ -65,7 +69,6 @@ use const E_USER_WARNING;
  * - `Stringable`. Instances of the class can be safely passed to the functions that expect strings as a parameter
  * - `Equalable`. Allows comparing objects by calling `equals()` method
  */
-// TODO: Implement methods: replace()
 class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	/**
