@@ -1012,6 +1012,30 @@ describe('Path::firstIndexOf()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Downloads')->firstIndexOf('Users', -10))->toBe(-1);
 		expect(Path::new('vendor/bin/phpunit')->firstIndexOf('bin', -10))->toBe(-1);
 	});
+	test('Should return the first index when there is a lot of the same subpaths and the start is positive', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a'))->toBe(1);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 2))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 5))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 8))->toBe(10);
+	});
+	test('Should return the first index when there is a lot of the same subpaths and the start is negative', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -12))->toBe(1);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -11))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -8))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -5))->toBe(10);
+	});
+	test('Should return the same index that was passed as the second argument when the first occurence is the same as the second argument and the start is positive', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 1))->toBe(1);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 4))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 7))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', 10))->toBe(10);
+	});
+	test('Should return the same index that was passed as the second argument when the first occurence is the same as the second argument and the start is negative', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -12))->toBe(1);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -9))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -6))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a', -3))->toBe(10);
+	});
 	test('Should return -1 when there is no such a subpath', function () {
 		expect(Path::new('/var/www/html/project/public')->firstIndexOf('none'))->toBe(-1);
 		expect(Path::new('C:\\Users\\Admin\\Downloads')->firstIndexOf('none'))->toBe(-1);
