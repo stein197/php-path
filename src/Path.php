@@ -658,7 +658,10 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 			if (!$result)
 				return null;
 		}
-		return self::new(join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result));
+		$result = join(self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR], $result);
+		if (preg_match(self::REGEX_ROOT, $result))
+			$result .= self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR];
+		return self::new($result);
 	}
 
 	private function getRealIndex(int $index): int {
