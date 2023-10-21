@@ -1053,8 +1053,153 @@ describe('Path::firstIndexOf()', function () {
 	});
 });
 
-// TODO
-describe('Path::lastIndexOf()', function () {})->todo();
+describe('Path::lastIndexOf()', function () {
+	test('Should return 0 or 1 when the path is checked against itself at default position', function () {
+		expect(Path::new('/')->lastIndexOf('/'))->toBe(0);
+		expect(Path::new('C:\\')->lastIndexOf('C:'))->toBe(0);
+		expect(Path::new('/var/www/html')->lastIndexOf('/var/www/html'))->toBe(0);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:/Users/Admin'))->toBe(0);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin/phpunit'))->toBe(1);
+		expect(Path::new('.')->lastIndexOf('.'))->toBe(1);
+		expect(Path::new('..')->lastIndexOf('..'))->toBe(1);
+	});
+	test('Should return 0 or 1 when the path is checked against itself at position 0', function () {
+		expect(Path::new('/')->lastIndexOf('/', 0))->toBe(0);
+		expect(Path::new('C:\\')->lastIndexOf('C:', 0))->toBe(0);
+		expect(Path::new('/var/www/html')->lastIndexOf('/var/www/html', 0))->toBe(0);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:/Users/Admin', 0))->toBe(0);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin/phpunit', 0))->toBe(1);
+		expect(Path::new('.')->lastIndexOf('.', 0))->toBe(1);
+		expect(Path::new('..')->lastIndexOf('..', 0))->toBe(1);
+	});
+	test('Should return -1 when the path is checked against itself at position > 0', function () {
+		expect(Path::new('/')->lastIndexOf('/', 1))->toBe(-1);
+		expect(Path::new('C:\\')->lastIndexOf('C:', 1))->toBe(-1);
+		expect(Path::new('/var/www/html')->lastIndexOf('/var/www/html', 1))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:/Users/Admin', 1))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin/phpunit', 2))->toBe(-1);
+		expect(Path::new('.')->lastIndexOf('.', 2))->toBe(-1);
+		expect(Path::new('..')->lastIndexOf('..', 2))->toBe(-1);
+	});
+	test('Should return 0 when the path is absolute and the subpath is a root', function () {
+		expect(Path::new('/var/www/html')->lastIndexOf('/'))->toBe(0);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:'))->toBe(0);
+	});
+	test('Should return 1 when the path is a single', function () {
+		expect(Path::new('file.txt')->lastIndexOf('file.txt'))->toBe(1);
+	});
+	test('Should return correct index when the path is absolute and the position is 0', function () {
+		expect(Path::new('/var/www/html')->lastIndexOf('var'))->toBe(1);
+		expect(Path::new('/var/www/html')->lastIndexOf('www'))->toBe(2);
+		expect(Path::new('/var/www/html')->lastIndexOf('html'))->toBe(3);
+		expect(Path::new('/var/www/html')->lastIndexOf('var/www'))->toBe(1);
+		expect(Path::new('/var/www/html')->lastIndexOf('www/html'))->toBe(2);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('Users'))->toBe(1);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('Admin'))->toBe(2);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('Users/Admin'))->toBe(1);
+		expect(Path::new('/a/b/c/a/b/c')->lastIndexOf('a/b/c'))->toBe(4);
+	});
+	test('Should return correct index when the path is relative and the position is 0', function () {
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor'))->toBe(1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin'))->toBe(1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin'))->toBe(2);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin/phpunit'))->toBe(2);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('phpunit'))->toBe(3);
+	});
+	test('Should return correct index when the path is absolute and the position is greater than 0', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('var', 1))->toBe(1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 1))->toBe(-1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 3))->toBe(3);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('public', 1))->toBe(-1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('public', 5))->toBe(5);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 1))->toBe(1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Admin', 2))->toBe(2);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Downloads', 3))->toBe(3);
+	});
+	test('Should return correct index when the path is relative and the position is greater than 0', function () {
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('var', 1))->toBe(1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('html', 1))->toBe(-1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('html', 3))->toBe(3);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('public', 1))->toBe(-1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('public', 5))->toBe(5);
+	});
+	test('Should return correct index when the path is absolute and the position is less than 0', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('var', -5))->toBe(1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', -5))->toBe(-1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', -3))->toBe(3);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('public', -5))->toBe(-1);
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('public', -1))->toBe(5);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', -3))->toBe(1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Admin', -2))->toBe(2);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Downloads', -1))->toBe(3);
+	});
+	test('Should return correct index when the path is relative and the position is less than 0', function () {
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('var', -5))->toBe(1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('html', -5))->toBe(-1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('html', -3))->toBe(3);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('public', -5))->toBe(-1);
+		expect(Path::new('var/www/html/project/public')->lastIndexOf('public', -1))->toBe(5);
+	});
+	test('Should return correct -1 when the subpath is inside the path but the position is positive and beyond the last found', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 2))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 4))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', 1))->toBe(-1);
+	});
+	test('Should return correct -1 when the subpath is inside the path but the position is negative and beyond the last found', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', -4))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', -4))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', -3))->toBe(-1);
+	});
+	test('Should return correct -1 when the subpath is inside the path but the position is positive and is too large', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 10))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 10))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', 10))->toBe(-1);
+	});
+	test('Should return correct -1 when the subpath is inside the path but the position is negative and is too large', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', -10))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', -10))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', -10))->toBe(-1);
+	});
+	test('Should return the last index when there is a lot of the same subpaths and the end is positive', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a'))->toBe(10);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 9))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 6))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 3))->toBe(1);
+	});
+	test('Should return the last index when there is a lot of the same subpaths and the end is negative', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -1))->toBe(10);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -4))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -7))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -10))->toBe(1);
+	});
+	test('Should return the same index that was passed as the second argument when the last occurence is the same as the second argument and the end is positive', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 10))->toBe(10);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 7))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 4))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', 1))->toBe(1);
+	});
+	test('Should return the same index that was passed as the second argument when the last occurence is the same as the second argument and the end is negative', function () {
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -3))->toBe(10);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -6))->toBe(7);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -9))->toBe(4);
+		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->lastIndexOf('a', -12))->toBe(1);
+	});
+	test('Should return -1 when there is no such a subpath', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('none'))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('none'))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('none'))->toBe(-1);
+	});
+	test('Should return -1 when there is a substring but there is no a subpath and the needle is absolute', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('/project'))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('/Admin'))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('/bin'))->toBe(-1);
+	});
+	test('Should return -1 when there is a substring but there is no a subpath and the needle is relative', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('proj'))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Adm'))->toBe(-1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('php'))->toBe(-1);
+	});
+});
 
 describe('Path::join()', function () {
 	test('Should keep parent jumps', function () {
