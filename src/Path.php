@@ -654,7 +654,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 		$result = [...$paths[0]];
 		foreach ($paths as $path) {
 			foreach ($path as $i => $part)
-				if ($result[$i] !== $part) {
+				if (!isset($result[$i]) || $result[$i] !== $part) {
 					array_splice($result, $i);
 					break;
 				}
