@@ -993,10 +993,10 @@ describe('Path::firstIndexOf()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Downloads')->firstIndexOf('Users', 10))->toBe(-1);
 		expect(Path::new('vendor/bin/phpunit')->firstIndexOf('bin', 10))->toBe(-1);
 	});
-	test('Should return correct -1 when the subpath is inside the path but the position is negative and is too large', function () {
-		expect(Path::new('/var/www/html/project/public')->firstIndexOf('html', -10))->toBe(-1);
-		expect(Path::new('C:\\Users\\Admin\\Downloads')->firstIndexOf('Users', -10))->toBe(-1);
-		expect(Path::new('vendor/bin/phpunit')->firstIndexOf('bin', -10))->toBe(-1);
+	test('Should return correct when the subpath is inside the path but the position is negative and is too large', function () {
+		expect(Path::new('/var/www/html/project/public')->firstIndexOf('html', -10))->toBe(3);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->firstIndexOf('Users', -10))->toBe(1);
+		expect(Path::new('vendor/bin/phpunit')->firstIndexOf('bin', -10))->toBe(2);
 	});
 	test('Should return the first index when there is a lot of the same subpaths and the start is positive', function () {
 		expect(Path::new('/a/b/c/a/b/c/a/b/c/a/b/c')->firstIndexOf('a'))->toBe(1);
