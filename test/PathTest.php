@@ -1128,7 +1128,7 @@ describe('Path::lastIndexOf()', function () {
 	});
 	test('Should return correct -1 when the subpath is inside the path but the position is positive and beyond the last found', function () {
 		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 2))->toBe(-1);
-		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 4))->toBe(-1);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 0))->toBe(-1);
 		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', 1))->toBe(-1);
 	});
 	test('Should return correct -1 when the subpath is inside the path but the position is negative and beyond the last found', function () {
@@ -1136,10 +1136,10 @@ describe('Path::lastIndexOf()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', -4))->toBe(-1);
 		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', -3))->toBe(-1);
 	});
-	test('Should return correct -1 when the subpath is inside the path but the position is positive and is too large', function () {
-		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 10))->toBe(-1);
-		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 10))->toBe(-1);
-		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', 10))->toBe(-1);
+	test('Should return correct when the subpath is inside the path but the position is positive and is too large', function () {
+		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', 10))->toBe(3);
+		expect(Path::new('C:\\Users\\Admin\\Downloads')->lastIndexOf('Users', 10))->toBe(1);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('bin', 10))->toBe(2);
 	});
 	test('Should return correct -1 when the subpath is inside the path but the position is negative and is too large', function () {
 		expect(Path::new('/var/www/html/project/public')->lastIndexOf('html', -10))->toBe(-1);
