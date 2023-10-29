@@ -339,7 +339,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 					$realStart,
 					$realEnd - $realStart + 1
 				)
-			)
+			) ?: self::DEFAULT_OPTIONS[self::OPTKEY_SEPARATOR]
 		);
 	}
 
