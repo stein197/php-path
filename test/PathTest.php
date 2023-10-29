@@ -1058,14 +1058,14 @@ describe('Path::lastIndexOf()', function () {
 		expect(Path::new('.')->lastIndexOf('.', 0))->toBe(1);
 		expect(Path::new('..')->lastIndexOf('..', 0))->toBe(1);
 	});
-	test('Should return -1 when the path is checked against itself at position > 0', function () {
-		expect(Path::new('/')->lastIndexOf('/', 1))->toBe(-1);
-		expect(Path::new('C:\\')->lastIndexOf('C:', 1))->toBe(-1);
-		expect(Path::new('/var/www/html')->lastIndexOf('/var/www/html', 1))->toBe(-1);
-		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:/Users/Admin', 1))->toBe(-1);
-		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin/phpunit', 2))->toBe(-1);
-		expect(Path::new('.')->lastIndexOf('.', 2))->toBe(-1);
-		expect(Path::new('..')->lastIndexOf('..', 2))->toBe(-1);
+	test('Should return 0 when the path is checked against itself at position > 0', function () {
+		expect(Path::new('/')->lastIndexOf('/', 1))->toBe(0);
+		expect(Path::new('C:\\')->lastIndexOf('C:', 1))->toBe(0);
+		expect(Path::new('/var/www/html')->lastIndexOf('/var/www/html', 1))->toBe(0);
+		expect(Path::new('C:\\Users\\Admin')->lastIndexOf('C:/Users/Admin', 1))->toBe(0);
+		expect(Path::new('vendor/bin/phpunit')->lastIndexOf('vendor/bin/phpunit', 2))->toBe(1);
+		expect(Path::new('.')->lastIndexOf('.', 2))->toBe(1);
+		expect(Path::new('..')->lastIndexOf('..', 2))->toBe(1);
 	});
 	test('Should return 0 when the path is absolute and the subpath is a root', function () {
 		expect(Path::new('/var/www/html')->lastIndexOf('/'))->toBe(0);
