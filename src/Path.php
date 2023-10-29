@@ -536,15 +536,14 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 			$end = 1;
 		if ($end)
 			$end = $this->getRealIndex($end);
-		$prevIndex = -1;
-		while (true) {
-			$nextIndex = $this->firstIndexOf($path, $prevIndex + 1);
-			if ($nextIndex < 0)
-				return $prevIndex;
-			if ($nextIndex > $end)
-				return $prevIndex;
-			$prevIndex = $nextIndex;
+		for ($i = $end; $i >= 0; $i--) {
+			for ($j = $path->dataSize - 1; $j >= 0; $j--) {
+				if (@$this->data[$i - ($path->dataSize - $j - 1)] !== @$path->data[$j])
+					continue 2;
+			}
+			return $i + +!$this->isAbsolute;
 		}
+		return -1;
 	}
 
 	/**
