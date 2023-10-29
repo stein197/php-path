@@ -532,9 +532,11 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 */
 	public function lastIndexOf(string | self $path, int $end = -1): int {
 		$path = self::wrap($path);
-		if (!$end && !$this->isAbsolute)
-			$end = 1;
-		if ($end)
+		if ($end === -1)
+			$end = $this->dataSize - 1;
+		elseif (!$end && !$this->isAbsolute)
+			$end = 0;
+		else
 			$end = $this->getRealIndex($end);
 		for ($i = $end; $i >= 0; $i--) {
 			for ($j = 0; $j < $path->dataSize; $j++) {
