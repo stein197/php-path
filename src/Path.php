@@ -422,7 +422,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	public function startsWith(string | self $path): bool {
 		$path = self::wrap($path);
 		foreach ($path->data as $i => $element)
-			if ($this->data[$i] !== $element)
+			if (!isset($this->data[$i]) || $this->data[$i] !== $element)
 				return false;
 		return true;
 	}
@@ -514,7 +514,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 			$start = $this->getRealIndex($start);
 		for ($i = $start; $i < $this->dataSize; $i++) {
 			for ($j = 0; $j < $path->dataSize; $j++)
-				if (@$this->data[$j + $i] !== @$path->data[$j])
+				if (!isset($this->data[$j + $i]) || @$this->data[$j + $i] !== @$path->data[$j])
 					continue 2;
 			return $i + +!$this->isAbsolute;
 		}
@@ -540,7 +540,8 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 			$end = $this->getRealIndex($end);
 		for ($i = $end; $i >= 0; $i--) {
 			for ($j = 0; $j < $path->dataSize; $j++) {
-				if (@$this->data[$i + $j] !== @$path->data[$j])
+				$thisOffset = $i + $j;
+				if (!isset($this->data[$thisOffset]) || @$this->data[$thisOffset] !== @$path->data[$j])
 					continue 2;
 			}
 			return $i + +!$this->isAbsolute;
