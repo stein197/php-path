@@ -57,8 +57,8 @@ use const E_USER_WARNING;
  * object always returns a new one.
  * 
  * Many methods work with indices. 0 index always points to the root, so for example for relative paths, the index 0 is
- * absent. The class also works with negative indices, in such case the counting starts from the end of the path (for
- * example index -1 points to the last part of the path).
+ * absent. The class also works with negative indices, in such case the counting starts from the end of a path (for
+ * example index -1 points to the last part of a path).
  * 
  * The class implements the next interfaces:
  * - `ArrayAccess`. Allows access to single parts of a path. In attempt of setting something by index, an exception is
@@ -293,7 +293,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 
 	/**
 	 * Get a parent of the path. If the path is root or a current directory then `null` is returned.
-	 * @return null|Path Parent path or `null` if the path is root or a current directory.
+	 * @return null|self Parent path or `null` if the path is root or a current directory.
 	 * ```php
 	 * Path::new('/usr/bin')->getParent(); // Path('/usr')
 	 * Path::new('C:')->getParent();       // null
@@ -346,8 +346,8 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	/**
 	 * Convert the path to an absolute one. It's a concatenation of `$base` and the path itself. If the path is already
 	 * absolute then the path itself is returned. If the base is not an absolute path, then an exception is thrown.
-	 * @param string|Path $base Path to make this one absolute against.
-	 * @return Path An absolute normalized path.
+	 * @param string|self $base Path to make this one absolute against.
+	 * @return self An absolute normalized path.
 	 * @throws InvalidArgumentException If the base is not an absolute path.
 	 * ```php
 	 * // An example
@@ -368,7 +368,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	/**
 	 * Convert the path to a relative one. It rips the `$base` component out of the path. If the path is already
 	 * relative then the path itself is returned. If the base is not an absolute path, then an exception is thrown.
-	 * @param string|Path $base Path that will be ripped out of the path.
+	 * @param string|self $base Path that will be ripped out of the path.
 	 * @return Path A relative normalized path.
 	 * @throws InvalidArgumentException If the base is not an absolute path.
 	 * ```php
@@ -552,7 +552,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	/**
 	 * Concatenate the given paths (`DIRECTORY_SEPARATOR` is used as a separator) and normalize the result.
 	 * @param string[] $data Paths to concatenate
-	 * @return Path Concatenated path.
+	 * @return self Concatenated path.
 	 * @uses \Stein197\Path::normalize()
 	 * ```php
 	 * Path::join(__DIR__, 'vendor/bin', 'phpunit.bat'); // Path('/usr/www/vendor/bin/phpunit.bat')
@@ -569,10 +569,10 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 	 * ones considered as case-sensitive.
 	 * @param string $path Path to expand variables within.
 	 * @param array $env Override environment variables.
-	 * @return Path Path with expanded variables.
+	 * @return self Path with expanded variables.
 	 * ```php
 	 * // An example
-	 * Path::expand('%SystemRoom%\\Downloads');                 // Path('C:\\Users\\Admin\\Downloads')
+	 * Path::expand('%SystemRoom%\\Fonts');                     // Path('C:\\Windows\\Fonts')
 	 * Path::expand('$HOME\\bin');                              // Path('/home/admin/bin')
 	 * Path::expand('$varname/admin', ['varname' => '/home/']); // Path(/home/admin')
 	 * ```
@@ -584,7 +584,7 @@ class Path implements ArrayAccess, Countable, Iterator, Stringable, Equalable {
 			$name = trim($match, '%$');
 			$env = array_merge(getenv(null, false), getenv(null, true), $env ?? []);
 			if ($isUnix)
-					return isset($env[$name]) ? $env[$name] : '';
+				return isset($env[$name]) ? $env[$name] : '';
 			$name = strtolower($name);
 			foreach ($env as $varName => $value)
 				if ($name === strtolower($varName))
