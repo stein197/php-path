@@ -633,6 +633,9 @@ describe('Path::getSubpath()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(-3, -2)->path)->toBe(ds('Admin/Project'));
 		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-4, -2)->path)->toBe(ds('phpunit/phpunit/src'));
 	});
+	test('Should return correct result when the path is relative and the start index is 0', function () {
+		expect(Path::new('vendor/bin/phpunit')->getSubpath(0)->path)->toBe(ds('vendor/bin/phpunit'));
+	});
 	// Single part
 	test('Should return a single element when both indices are the same and positive', function () {
 		expect(Path::new('/var/www/html/project/public')->getSubpath(3, 3)->path)->toBe('html');
@@ -658,7 +661,6 @@ describe('Path::getSubpath()', function () {
 		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(-5, 5)->path)->toBe(ds('vendor/phpunit/phpunit/src/Runner'));
 	});
 	// null
-	test('Should return null when the path is relative and the start index is 0', function () {})->todo();
 	test('Should return null when the the start index is greater than the end and they are both positive', function () {
 		expect(Path::new('/var/www/html/project/public')->getSubpath(10, 20))->toBeNull();
 		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10, 20))->toBeNull();
@@ -674,7 +676,6 @@ describe('Path::getSubpath()', function () {
 		expect(Path::new('C:\\Users\\Admin\\Project\\Public')->getSubpath(10))->toBeNull();
 		expect(Path::new('vendor/phpunit/phpunit/src/Runner/')->getSubpath(10))->toBeNull();
 	});
-	test('Should return null when the first argument is 0 and the second one is negative too large', function () {})->todo();
 });
 
 describe('Path::toAbsolute()', function () {
